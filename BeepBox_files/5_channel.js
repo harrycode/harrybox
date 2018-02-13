@@ -156,7 +156,18 @@ var beepbox;
                         drumBuffer = newBuffer;
                     }
                 }
-                else if (index == 3) {
+				else if (index == 3) {
+                    var drumBuffer = 1;
+                    for (var i = 0; i < 32767; i++) {
+                        wave[i] = (drumBuffer & 1) * 2.0 - 1.0;
+                        var newBuffer = drumBuffer >> 2;
+                        if (((drumBuffer + newBuffer) & 1) == 1) {
+                            newBuffer += 4 << 14;
+                        }
+                        drumBuffer = newBuffer;
+                    }
+                }
+                else if (index == 4) {
                     var drumBuffer = 1;
                     for (var i = 0; i < 32768; i++) {
                         wave[i] = (drumBuffer & 1) * 2.0 - 1.0;
@@ -167,7 +178,7 @@ var beepbox;
                         drumBuffer = newBuffer;
                     }
                 }
-                else if (index == 4) {
+                else if (index == 5) {
                     for (var i = 1 << 10; i < (1 << 11); i++) {
                         var amplitude = 2.0;
                         var radians = Math.random() * Math.PI * 2.0;
@@ -183,6 +194,22 @@ var beepbox;
                     FFT.inverseRealFourierTransform(wave);
                     FFT.scaleElementsByFactor(wave, 1.0 / Math.sqrt(wave.length));
                 }
+				else if (index == 6) {
+                    for (var i = 1 << 1; i < (1 << 10); i++) {
+                        var amplitude = 2.0;
+                        var radians = Math.random() * Math.PI * 2.0;
+                        wave[i] = Math.cos(radians) * amplitude;
+                        wave[32768 - i] = Math.sin(radians) * amplitude;
+                    }
+                    for (var i = 1 << 110; i < (0 << 14); i++) {
+                        var amplitude = 0.5;
+                        var radians = Math.random() * Math.PI * 2.0;
+                        wave[i] = Math.cos(radians) * amplitude;
+                        wave[32768 - i] = Math.sin(radians) * amplitude;
+                    }
+                    FFT.inverseRealFourierTransform(wave);
+                    FFT.scaleElementsByFactor(wave, 1.0 / Math.sqrt(wave.length));
+                }
                 else {
                     throw new Error("Unrecognized drum index: " + index);
                 }
@@ -191,7 +218,7 @@ var beepbox;
         };
         return Config;
     }());
-    Config.scaleNames = ["easy :)", "easy :(", "island :)", "island :(", "blues :)", "blues :(", "normal :)", "normal :(", "dbl harmonic :)", "dbl harmonic :(", "enigma", "expert"];
+    Config.scaleNames = ["easy :)", "easy :(", "island :)", "island :(", "blues :)", "blues :(", "normal :)", "normal :(", "dbl harmonic :)", "dbl harmonic :(", "enigma", "expert", "base note", "beep bishop", "challenge", "enigma+"];
     Config.scaleFlags = [
         [true, false, true, false, true, false, false, true, false, true, false, false],
         [true, false, false, true, false, true, false, true, false, false, true, false],
@@ -205,14 +232,20 @@ var beepbox;
         [true, false, true, true, false, false, true, true, true, false, false, true],
         [true, false, true, false, true, false, true, false, true, false, true, false],
         [true, true, true, true, true, true, true, true, true, true, true, true],
+		[true, false, false, false, false, false, false, false, false, false, false, false],
+		[true, true, false, true, true, true, true, true, true, false, true, false],
+		[false, true, true, true, true, true, true, true, true, true, true, true],
+		[true, true, false, true, true, false, true, true, false, true, true, false],
     ];
     Config.pianoScaleFlags = [true, false, true, false, true, true, false, true, false, true, false, true];
     Config.blackKeyNameParents = [-1, 1, -1, 1, -1, 1, -1, -1, 1, -1, 1, -1];
     Config.pitchNames = ["C", null, "D", null, "E", "F", null, "G", null, "A", null, "B"];
     Config.keyNames = ["B", "A#", "A", "G#", "G", "F#", "F", "E", "D#", "D", "C#", "C"];
     Config.keyTransposes = [23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12];
-    Config.tempoNames = ["molasses", "slow", "leisurely", "moderate", "steady", "brisk", "hasty", "fast", "strenuous", "grueling", "hyper", "ludicrous"];
-    Config.reverbRange = 4;
+    Config.tempoNames = ["speed1", "speed2", "speed3", "speed4", "speed5", "speed6", "speed7", "speed8", "speed9", "speed10", "speed11", "speed12", "speed13", "speed14", "speed15", "speed16", "speed17", "speed18", "speed19", "speed20", "speed21", ];
+    Config.reverbRange = 5;
+	Config.blendRange = 4;
+	Config.riffRange = 11;
     Config.beatsPerBarMin = 1;
     Config.beatsPerBarMax = 16;
     Config.barCountMin = 1;
@@ -225,35 +258,35 @@ var beepbox;
     Config.partCounts = [3, 4, 6, 8, 16, 12, 9, 5, 50];
     Config.waveNames = ["triangle", "square", "pulse wide", "pulse narrow", "sawtooth", "double saw", "double pulse", "spiky", "plateau", "glitch", "10% pulse", "sunsoft bass", "loud pulse", "sax", "guitar", "sine", "atari bass", "atari pulse", "1% pulse", "curved sawtooth", "viola", "brass", "acoustic bass"];
     Config.waveVolumes = [1.0, 0.5, 0.5, 0.5, 0.65, 0.5, 0.4, 0.4, 0.94, 0.5, 0.5, 1.0, 0.6, 0.2, 0.5, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0];
-    Config.drumNames = ["retro", "white", "clang", "buzz", "hollow"];
-    Config.drumVolumes = [0.25, 1.0, 0.4, 0.3, 1.5];
-    Config.drumPitchRoots = [69, 69, 69, 69, 96];
-    Config.drumPitchFilterMult = [100.0, 8.0, 100.0, 100.0, 1.0];
-    Config.drumWaveIsSoft = [false, true, false, false, true];
-    Config.filterNames = ["sustain sharp", "sustain medium", "sustain soft", "decay sharp", "decay medium", "decay soft"];
-    Config.filterBases = [2.0, 3.5, 5.0, 1.0, 2.5, 4.0];
-    Config.filterDecays = [0.0, 0.0, 0.0, 10.0, 7.0, 4.0];
-    Config.filterVolumes = [0.4, 0.7, 1.0, 0.5, 0.75, 1.0];
-    Config.envelopeNames = ["seamless", "sudden", "smooth", "slide"];
-    Config.effectNames = ["none", "vibrato light", "vibrato delayed", "vibrato heavy", "tremolo light", "tremolo heavy"];
-    Config.effectVibratos = [0.0, 0.15, 0.3, 0.45, 0.0, 0.0];
-    Config.effectTremolos = [0.0, 0.0, 0.0, 0.0, 0.25, 0.5];
-    Config.effectVibratoDelays = [0, 0, 3, 0, 0, 0];
-    Config.chorusNames = ["union", "shimmer", "hum", "honky tonk", "dissonant", "fifths", "octaves", "bowed", "spinner", "detune", "bass", "custom harmony", "detuned custom harmony"];
-    Config.chorusIntervals = [0.0, 0.02, 0.05, 0.1, 0.25, 3.5, 6, 0.02, 0.02, 0.0, 0.05, 0.0, 0.05];
-    Config.chorusOffsets = [0.0, 0.0, 0.0, 0.0, 0.0, 3.5, 6, 0.0, 0.0, 0.25, -7, 0.0, 0.25];
-    Config.chorusVolumes = [0.7, 0.8, 1.0, 1.0, 0.9, 0.9, 1.0, 0.8, 1.0, 0.7, 0.975, 1.0, 1.0];
-    Config.chorusHarmonizes = [false, false, false, false, false, false, false, false, false, false, false, true, true];
+    Config.drumNames = ["retro", "white", "periodic", "detuned periodic", "shine", "hollow", "deep"];
+    Config.drumVolumes = [0.25, 1.0, 0.4, 0.3, 0.3, 1.5, 1.5];
+    Config.drumPitchRoots = [69, 69, 69, 69, 69, 96, 120];
+    Config.drumPitchFilterMult = [100.0, 8.0, 100.0, 100.0, 100.0, 1.0, 100.0];
+    Config.drumWaveIsSoft = [false, true, false, false, false, true];
+    Config.filterNames = ["sustain sharp", "sustain medium", "sustain soft", "decay sharp", "decay medium", "decay soft", "ring", "muffled", "submerged", "shift", "overtone"];
+    Config.filterBases = [2.0, 3.5, 5.0, 1.0, 2.5, 4.0, -1.0, 4.0, 6.0, 0.0, 1.0];
+    Config.filterDecays = [0.0, 0.0, 0.0, 10.0, 7.0, 4.0, 0.2, 0.2, 0.3, 0.0, 0.0];
+    Config.filterVolumes = [0.4, 0.7, 1.0, 0.5, 0.75, 1.0, 0.5, 0.75, 0.4, 0.4, 1.0];
+    Config.envelopeNames = ["seamless", "sudden", "smooth", "slide","trill","click","bow"];
+    Config.effectNames = ["none", "vibrato light", "vibrato delayed", "vibrato heavy", "tremelo light", "tremelo heavy", "alien", "stutter", "strum"];
+    Config.effectVibratos = [0.0, 0.15, 0.3, 0.45, 0.0, 0.0, 1.0, 0.0, 0.05];
+    Config.effectTremolos = [0.0, 0.0, 0.0, 0.0, 0.25, 0.5, 0.0, 1.0, 0.025];
+    Config.effectVibratoDelays = [0, 0, 3, 0, 0, 0, 0, 0, 0];
+    Config.chorusNames = ["union", "shimmer", "hum", "honky tonk", "dissonant", "fifths", "octaves", "spinner", "detune", "bowed", "rising", "vibrate", "fourths", "bass", "dirty", "stationary", "custom harmony", "detuned custom harmony"];
+    Config.chorusIntervals = [0.0, 0.02, 0.05, 0.1, 0.25, 3.5, 6, 0.02, 0.0, 0.02, 1.0, 3.5, 4, 0, 0.0, 3.5, 0.0, 0.05];
+    Config.chorusOffsets = [0.0, 0.0, 0.0, 0.0, 0.0, 3.5, 6, 0.0, 0.25, 0.0, 0.7, 7, 4, -7, 0.1, 0.0, 0.0, 0.25];
+    Config.chorusVolumes = [0.9, 0.9, 1.0, 1.0, 0.95, 0.95, 0.9, 1.0, 1.0, 1.0, 0.95, 0.975, 0.95, 1.0, 0.975, 0.9, 1.0, 1.0];
+    Config.chorusHarmonizes = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,true, true];
     Config.volumeNames = ["loudest", "loud", "medium", "quiet", "quietest", "mute"];
     Config.volumeValues = [0.0, 0.5, 1.0, 1.5, 2.0, -1.0];
-    Config.pitchChannelColorsDim = ["#0099a1", "#a1a100", "#c75000", "#00a100", "#d020d0", "#7777b0"];
-    Config.pitchChannelColorsBright = ["#25f3ff", "#ffff25", "#ff9752", "#50ff50", "#ff90ff", "#a0a0ff"];
-    Config.pitchNoteColorsDim = ["#00bdc7", "#c7c700", "#ff771c", "#00c700", "#e040e0", "#8888d0"];
-    Config.pitchNoteColorsBright = ["#92f9ff", "#ffff92", "#ffcdab", "#a0ffa0", "#ffc0ff", "#d0d0ff"];
-    Config.drumChannelColorsDim = ["#6f6f6f", "#996633"];
-    Config.drumChannelColorsBright = ["#aaaaaa", "#ddaa77"];
-    Config.drumNoteColorsDim = ["#aaaaaa", "#cc9966"];
-    Config.drumNoteColorsBright = ["#eeeeee", "#f0d0bb"];
+    Config.pitchChannelColorsDim = ["#0099a1", "#439143", "#a1a100", "#c75000", "#d020d0", "#492184"];
+    Config.pitchChannelColorsBright = ["#25f3ff", "#44ff44", "#ffff25", "#ff9752", "#ff90ff", "#9147ff"];
+    Config.pitchNoteColorsDim = ["#0099a1", "#439143", "#a1a100", "#c75000", "#d020d0", "#492184"];
+    Config.pitchNoteColorsBright = ["#25f3ff", "#44ff44", "#ffff25", "#ff9752", "#ff90ff", "#9147ff"];
+    Config.drumChannelColorsDim = ["#991010", "#aaaaaa"];
+    Config.drumChannelColorsBright = ["#ff1616", "#ffffff"];
+    Config.drumNoteColorsDim = ["#991010", "#aaaaaa"];
+    Config.drumNoteColorsBright = ["#ff1616", "#ffffff"];
     Config.drumInterval = 6;
     Config.drumCount = 12;
     Config.pitchCount = 37;
@@ -478,32 +511,36 @@ var beepbox;
                 [new BarPattern(), new BarPattern(), new BarPattern(), new BarPattern(), new BarPattern(), new BarPattern(), new BarPattern(), new BarPattern()],
                 [new BarPattern(), new BarPattern(), new BarPattern(), new BarPattern(), new BarPattern(), new BarPattern(), new BarPattern(), new BarPattern()],
                 [new BarPattern(), new BarPattern(), new BarPattern(), new BarPattern(), new BarPattern(), new BarPattern(), new BarPattern(), new BarPattern()],
+                [new BarPattern(), new BarPattern(), new BarPattern(), new BarPattern(), new BarPattern(), new BarPattern(), new BarPattern(), new BarPattern()],
             ];
             this.channelBars = [
                 [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
                 [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
                 [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
                 [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             ];
-            this.channelOctaves = [3, 2, 1, 0];
-            this.instrumentVolumes = [[0], [0], [0], [0]];
-            this.instrumentWaves = [[1], [1], [1], [1]];
-            this.instrumentFilters = [[0], [0], [0], [0]];
-            this.instrumentEnvelopes = [[1], [1], [1], [1]];
-            this.instrumentEffects = [[0], [0], [0], [0]];
-            this.instrumentChorus = [[0], [0], [0], [0]];
+            this.channelOctaves = [4, 3, 2, 1, 0];
+            this.instrumentVolumes = [[0], [0], [0], [0], [0]];
+            this.instrumentWaves = [[1], [1], [1], [1], [1]];
+            this.instrumentFilters = [[0], [0], [0], [0], [0]];
+            this.instrumentEnvelopes = [[1], [1], [1], [1], [1]];
+            this.instrumentEffects = [[0], [0], [0], [0], [0]];
+            this.instrumentChorus = [[0], [0], [0], [0], [0]];
             this.scale = 0;
             this.key = Config.keyNames.length - 1;
             this.loopStart = 0;
             this.loopLength = 4;
             this.tempo = 7;
             this.reverb = 0;
+			this.blend = 0;
+			this.riff = 0;
             this.beatsPerBar = 8;
             this.barCount = 16;
             this.patternsPerChannel = 8;
             this.partsPerBeat = 4;
             this.instrumentsPerChannel = 1;
-            this.pitchChannelCount = 3;
+            this.pitchChannelCount = 4;
             this.drumChannelCount = 1;
         };
         Song.prototype.toBase64String = function () {
@@ -518,6 +555,8 @@ var beepbox;
             buffer.push(101, base64IntToCharCode[(this.loopLength - 1) >> 6], base64IntToCharCode[(this.loopLength - 1) & 0x3f]);
             buffer.push(116, base64IntToCharCode[this.tempo]);
             buffer.push(109, base64IntToCharCode[this.reverb]);
+			buffer.push(120, base64IntToCharCode[this.blend]);
+			buffer.push(121, base64IntToCharCode[this.riff]);
             buffer.push(97, base64IntToCharCode[this.beatsPerBar - 1]);
             buffer.push(103, base64IntToCharCode[(this.barCount - 1) >> 6], base64IntToCharCode[(this.barCount - 1) & 0x3f]);
             buffer.push(106, base64IntToCharCode[this.patternsPerChannel - 1]);
@@ -786,6 +825,14 @@ var beepbox;
                 else if (command == 109) {
                     this.reverb = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
                     this.reverb = this._clip(0, Config.reverbRange, this.reverb);
+                }
+				else if (command == 120) {
+                    this.blend = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
+                    this.blend = this._clip(0, Config.blendRange, this.blend);
+                }
+				else if (command == 121) {
+                    this.riff = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
+                    this.riff = this._clip(0, Config.riffRange, this.riff);
                 }
                 else if (command == 97) {
                     if (beforeThree) {
@@ -1185,6 +1232,8 @@ var beepbox;
                 ticksPerBeat: this.partsPerBeat,
                 beatsPerMinute: this.getBeatsPerMinute(),
                 reverb: this.reverb,
+				blend: this.blend,
+				riff: this.riff,
                 channels: channelArray,
             };
         };
@@ -1231,6 +1280,12 @@ var beepbox;
             }
             if (jsonObject.reverb != undefined) {
                 this.reverb = this._clip(0, Config.reverbRange, jsonObject.reverb | 0);
+            }
+			if (jsonObject.blend != undefined) {
+                this.blend = this._clip(0, Config.blendRange, jsonObject.blend | 0);
+            }
+			if (jsonObject.riff != undefined) {
+                this.riff = this._clip(0, Config.riffRange, jsonObject.riff | 0);
             }
             if (jsonObject.beatsPerBar != undefined) {
                 this.beatsPerBar = Math.max(Config.beatsPerBarMin, Math.min(Config.beatsPerBarMax, jsonObject.beatsPerBar | 0));
@@ -1477,8 +1532,8 @@ var beepbox;
     }());
     Song._oldestVersion = 2;
     Song._latestVersion = 5;
-    Song._base64CharCodeToInt = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 62, 62, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0, 0, 0, 0, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 0, 0, 0, 0, 63, 0, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 0, 0, 0, 0, 0];
-    Song._base64IntToCharCode = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 45, 95];
+    Song._base64CharCodeToInt = [151, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 62, 62, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0, 0, 0, 0, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 0, 0, 0, 0, 63, 0, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 0, 0, 0, 0, 0];
+    Song._base64IntToCharCode = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 45, 95, 0];
     beepbox.Song = Song;
     var Synth = (function () {
         function Synth(song) {
@@ -1846,6 +1901,15 @@ var beepbox;
                     else if (envelope == 2) {
                         arpeggioVolumeStart = 0.0;
                     }
+					else if (envelope == 4) {
+                        arpeggioVolumeEnd = 0.0
+					}
+                    else if (envelope == 5) {
+                        arpeggioIntervalStart = 100.0
+					}
+                    else if (envelope == 6) {
+                        arpeggioIntervalStart = -1.0
+					}
                     else if (envelope == 3) {
                         if (prevNote == null) {
                             arpeggioVolumeStart = 0.0;
@@ -1985,7 +2049,7 @@ var beepbox;
         return Synth;
     }());
     Synth.generatedSynthesizers = [];
-    Synth.synthSourceTemplate = "\n\t\t\t\n\t\t\tvar bufferIndex = 0;\n\t\t\t\n\t\t\tvar sampleTime = 1.0 / synth.samplesPerSecond;\n\t\t\tvar samplesPerArpeggio = synth.getSamplesPerArpeggio();\n\t\t\tvar effectYMult = synth.effectYMult;\n\t\t\tvar limitDecay = synth.limitDecay;\n\t\t\tvar volume = synth.volume;\n\t\t\tvar delayLine = synth.delayLine;\n\t\t\tvar reverb = Math.pow(song.reverb / beepbox.Config.reverbRange, 0.667) * 0.425;\n\t\t\tvar ended = false;\n\t\t\t\n\t\t\t// Check the bounds of the playhead:\n\t\t\tif (synth.arpeggioSampleCountdown == 0 || synth.arpeggioSampleCountdown > samplesPerArpeggio) {\n\t\t\t\tsynth.arpeggioSampleCountdown = samplesPerArpeggio;\n\t\t\t}\n\t\t\tif (synth.part >= song.partsPerBeat) {\n\t\t\t\tsynth.beat++;\n\t\t\t\tsynth.part = 0;\n\t\t\t\tsynth.arpeggio = 0;\n\t\t\t\tsynth.arpeggioSampleCountdown = samplesPerArpeggio;\n\t\t\t}\n\t\t\tif (synth.beat >= song.beatsPerBar) {\n\t\t\t\tsynth.bar++;\n\t\t\t\tsynth.beat = 0;\n\t\t\t\tsynth.part = 0;\n\t\t\t\tsynth.arpeggio = 0;\n\t\t\t\tsynth.arpeggioSampleCountdown = samplesPerArpeggio;\n\t\t\t\t\n\t\t\t\tif (synth.loopCount == -1) {\n\t\t\t\t\tif (synth.bar < song.loopStart && !synth.enableIntro) synth.bar = song.loopStart;\n\t\t\t\t\tif (synth.bar >= song.loopStart + song.loopLength && !synth.enableOutro) synth.bar = song.loopStart;\n\t\t\t\t}\n\t\t\t}\n\t\t\tif (synth.bar >= song.barCount) {\n\t\t\t\tif (synth.enableOutro) {\n\t\t\t\t\tsynth.bar = 0;\n\t\t\t\t\tsynth.enableIntro = true;\n\t\t\t\t\tended = true;\n\t\t\t\t\tsynth.pause();\n\t\t\t\t} else {\n\t\t\t\t\tsynth.bar = song.loopStart;\n\t\t\t\t}\n \t\t\t}\n\t\t\tif (synth.bar >= song.loopStart) {\n\t\t\t\tsynth.enableIntro = false;\n\t\t\t}\n\t\t\t\n \t\t\twhile (totalSamples > 0) {\n\t\t\t\tif (ended) {\n\t\t\t\t\twhile (totalSamples-- > 0) {\n\t\t\t\t\t\tdata[bufferIndex] = 0.0;\n\t\t\t\t\t\tbufferIndex++;\n\t\t\t\t\t}\n\t\t\t\t\tbreak;\n\t\t\t\t}\n\t\t\t\t\n\t\t\t\t// Initialize instruments based on current pattern.\n\t\t\t\tvar instrumentChannel# = song.getPatternInstrument(#, synth.bar); // ALL\n\t\t\t\tvar maxChannel#Volume = 0.27 * (song.instrumentVolumes[#][instrumentChannel#] == 5 ? 0.0 : Math.pow(2, -beepbox.Config.volumeValues[song.instrumentVolumes[#][instrumentChannel#]])) * beepbox.Config.waveVolumes[song.instrumentWaves[#][instrumentChannel#]] * beepbox.Config.filterVolumes[song.instrumentFilters[#][instrumentChannel#]] * beepbox.Config.chorusVolumes[song.instrumentChorus[#][instrumentChannel#]] * 0.5; // PITCH\n\t\t\t\tvar maxChannel#Volume = 0.19 * (song.instrumentVolumes[#][instrumentChannel#] == 5 ? 0.0 : Math.pow(2, -beepbox.Config.volumeValues[song.instrumentVolumes[#][instrumentChannel#]])) * beepbox.Config.drumVolumes[song.instrumentWaves[#][instrumentChannel#]]; // DRUM\n\t\t\t\tvar channel#Wave = beepbox.Config.waves[song.instrumentWaves[#][instrumentChannel#]]; // PITCH\n\t\t\t\tvar channel#Wave = beepbox.Config.getDrumWave(song.instrumentWaves[#][instrumentChannel#]); // DRUM\n\t\t\t\tvar channel#WaveLength = channel#Wave.length; // PITCH\n\t\t\t\tvar channel#FilterBase = Math.pow(2, -beepbox.Config.filterBases[song.instrumentFilters[#][instrumentChannel#]]); // PITCH\n\t\t\t\tvar channel#TremoloScale = beepbox.Config.effectTremolos[song.instrumentEffects[#][instrumentChannel#]]; // PITCH\n\t\t\t\t\n\t\t\t\t// Reuse initialized instruments until getting to the end of the sample period or the end of the current bar.\n\t\t\t\twhile (totalSamples > 0) {\n\t\t\t\t\tvar samples;\n\t\t\t\t\tif (synth.arpeggioSampleCountdown <= totalSamples) {\n\t\t\t\t\t\tsamples = synth.arpeggioSampleCountdown;\n\t\t\t\t\t} else {\n\t\t\t\t\t\tsamples = totalSamples;\n\t\t\t\t\t}\n\t\t\t\t\ttotalSamples -= samples;\n\t\t\t\t\tsynth.arpeggioSampleCountdown -= samples;\n\t\t\t\t\t\n\t\t\t\t\tvar time = synth.part + synth.beat * song.partsPerBeat;\n\t\t\t\t\n\t\t\t\t\tvar channel#ChorusA = Math.pow(2.0, (beepbox.Config.chorusOffsets[song.instrumentChorus[#][instrumentChannel#]] + beepbox.Config.chorusIntervals[song.instrumentChorus[#][instrumentChannel#]]) / 12.0); // PITCH\n\t\t\t\t\tvar channel#ChorusB = Math.pow(2.0, (beepbox.Config.chorusOffsets[song.instrumentChorus[#][instrumentChannel#]] - beepbox.Config.chorusIntervals[song.instrumentChorus[#][instrumentChannel#]]) / 12.0); // PITCH\n\t\t\t\t\tvar channel#ChorusSign = (song.instrumentChorus[#][instrumentChannel#] == 7) ? -1.0 : 1.0; // PITCH\n\t\t\t\t\tif (song.instrumentChorus[#][instrumentChannel#] == 0) synth.channelPlayheadB[#] = synth.channelPlayheadA[#]; // PITCH\n\t\t\t\t\t\n\t\t\t\t\tvar channel#PlayheadDelta = 0; // ALL\n\t\t\t\t\tvar channel#PlayheadDeltaScale = 0; // ALL\n\t\t\t\t\tvar channel#Volume = 0; // ALL\n\t\t\t\t\tvar channel#VolumeDelta = 0; // ALL\n\t\t\t\t\tvar channel#Filter = 0; // ALL\n\t\t\t\t\tvar channel#FilterScale = 0; // PITCH\n\t\t\t\t\tvar channel#VibratoScale = 0; // PITCH\n\t\t\t\t\t\n\t\t\t\t\tvar instrument# = beepbox.Synth.computeChannelInstrument(synth, song, #, time, sampleTime, samplesPerArpeggio, samples, false); // PITCH\n\t\t\t\t\tvar instrument# = beepbox.Synth.computeChannelInstrument(synth, song, #, time, sampleTime, samplesPerArpeggio, samples, true); // DRUM\n\t\t\t\t\t\n\t\t\t\t\tchannel#PlayheadDelta = instrument#.periodDelta; // PITCH\n\t\t\t\t\tchannel#PlayheadDelta = instrument#.periodDelta / 32768.0; // DRUM\n\t\t\t\t\tchannel#PlayheadDeltaScale = instrument#.periodDeltaScale; // ALL\n\t\t\t\t\tchannel#Volume = instrument#.noteVolume * maxChannel#Volume; // ALL\n\t\t\t\t\tchannel#VolumeDelta = instrument#.volumeDelta * maxChannel#Volume; // ALL\n\t\t\t\t\tchannel#Filter = instrument#.filter * channel#FilterBase; // PITCH\n\t\t\t\t\tchannel#Filter = instrument#.filter; // DRUM\n\t\t\t\t\tchannel#FilterScale = instrument#.filterScale; // PITCH\n\t\t\t\t\tchannel#VibratoScale = instrument#.vibratoScale; // PITCH\n\t\t\t\t\tchannel#ChorusB *= instrument#.harmonyMult; // PITCH\n\t\t\t\t\tif (instrument#.resetPlayheads) { synth.channelSample[#] = 0.0; synth.channelPlayheadA[#] = 0.0; synth.channelPlayheadB[#] = 0.0; } // PITCH\n\t\t\t\t\t\n\t\t\t\t\tvar effectY     = Math.sin(synth.effectPlayhead);\n\t\t\t\t\tvar prevEffectY = Math.sin(synth.effectPlayhead - synth.effectAngle);\n\t\t\t\t\t\n\t\t\t\t\tvar channel#PlayheadA = +synth.channelPlayheadA[#]; // PITCH\n\t\t\t\t\tvar channel#PlayheadB = +synth.channelPlayheadB[#]; // PITCH\n\t\t\t\t\tvar channel#Playhead  = +synth.channelPlayheadA[#]; // DRUM\n\t\t\t\t\t\n\t\t\t\t\tvar channel#Sample = +synth.channelSample[#]; // ALL\n\t\t\t\t\t\n\t\t\t\t\tvar delayPos = 0|synth.delayPos;\n\t\t\t\t\tvar delayFeedback0 = +synth.delayFeedback0;\n\t\t\t\t\tvar delayFeedback1 = +synth.delayFeedback1;\n\t\t\t\t\tvar delayFeedback2 = +synth.delayFeedback2;\n\t\t\t\t\tvar delayFeedback3 = +synth.delayFeedback3;\n\t\t\t\t\tvar limit = +synth.limit;\n\t\t\t\t\t\n\t\t\t\t\twhile (samples) {\n\t\t\t\t\t\tvar channel#Vibrato = 1.0 + channel#VibratoScale * effectY; // PITCH\n\t\t\t\t\t\tvar channel#Tremolo = 1.0 + channel#TremoloScale * (effectY - 1.0); // PITCH\n\t\t\t\t\t\tvar temp = effectY;\n\t\t\t\t\t\teffectY = effectYMult * effectY - prevEffectY;\n\t\t\t\t\t\tprevEffectY = temp;\n\t\t\t\t\t\t\n\t\t\t\t\t\tchannel#Sample += ((channel#Wave[0|(channel#PlayheadA * channel#WaveLength)] + channel#Wave[0|(channel#PlayheadB * channel#WaveLength)] * channel#ChorusSign) * channel#Volume * channel#Tremolo - channel#Sample) * channel#Filter; // PITCH\n\t\t\t\t\t\tchannel#Sample += (channel#Wave[0|(channel#Playhead * 32768.0)] * channel#Volume - channel#Sample) * channel#Filter; // DRUM\n\t\t\t\t\t\tchannel#Volume += channel#VolumeDelta; // ALL\n\t\t\t\t\t\tchannel#PlayheadA += channel#PlayheadDelta * channel#Vibrato * channel#ChorusA; // PITCH\n\t\t\t\t\t\tchannel#PlayheadB += channel#PlayheadDelta * channel#Vibrato * channel#ChorusB; // PITCH\n\t\t\t\t\t\tchannel#Playhead += channel#PlayheadDelta; // DRUM\n\t\t\t\t\t\tchannel#PlayheadDelta *= channel#PlayheadDeltaScale; // ALL\n\t\t\t\t\t\tchannel#Filter *= channel#FilterScale; // PITCH\n\t\t\t\t\t\tchannel#PlayheadA -= 0|channel#PlayheadA; // PITCH\n\t\t\t\t\t\tchannel#PlayheadB -= 0|channel#PlayheadB; // PITCH\n\t\t\t\t\t\tchannel#Playhead -= 0|channel#Playhead; // DRUM\n\t\t\t\t\t\t\n\t\t\t\t\t\t// Reverb, implemented using a feedback delay network with a Hadamard matrix and lowpass filters.\n\t\t\t\t\t\t// good ratios:    0.555235 + 0.618033 + 0.818 +   1.0 = 2.991268\n\t\t\t\t\t\t// Delay lengths:  3041     + 3385     + 4481  +  5477 = 16384 = 2^14\n\t\t\t\t\t\t// Buffer offsets: 3041    -> 6426   -> 10907 -> 16384\n\t\t\t\t\t\tvar delayPos1 = (delayPos +  3041) & 0x3FFF;\n\t\t\t\t\t\tvar delayPos2 = (delayPos +  6426) & 0x3FFF;\n\t\t\t\t\t\tvar delayPos3 = (delayPos + 10907) & 0x3FFF;\n\t\t\t\t\t\tvar delaySample0 = delayLine[delayPos]\n\t\t\t\t\t\t\t+ channel#Sample // PITCH\n\t\t\t\t\t\t;\n\t\t\t\t\t\tvar delaySample1 = delayLine[delayPos1];\n\t\t\t\t\t\tvar delaySample2 = delayLine[delayPos2];\n\t\t\t\t\t\tvar delaySample3 = delayLine[delayPos3];\n\t\t\t\t\t\tvar delayTemp0 = -delaySample0 + delaySample1;\n\t\t\t\t\t\tvar delayTemp1 = -delaySample0 - delaySample1;\n\t\t\t\t\t\tvar delayTemp2 = -delaySample2 + delaySample3;\n\t\t\t\t\t\tvar delayTemp3 = -delaySample2 - delaySample3;\n\t\t\t\t\t\tdelayFeedback0 += ((delayTemp0 + delayTemp2) * reverb - delayFeedback0) * 0.5;\n\t\t\t\t\t\tdelayFeedback1 += ((delayTemp1 + delayTemp3) * reverb - delayFeedback1) * 0.5;\n\t\t\t\t\t\tdelayFeedback2 += ((delayTemp0 - delayTemp2) * reverb - delayFeedback2) * 0.5;\n\t\t\t\t\t\tdelayFeedback3 += ((delayTemp1 - delayTemp3) * reverb - delayFeedback3) * 0.5;\n\t\t\t\t\t\tdelayLine[delayPos1] = delayFeedback0;\n\t\t\t\t\t\tdelayLine[delayPos2] = delayFeedback1;\n\t\t\t\t\t\tdelayLine[delayPos3] = delayFeedback2;\n\t\t\t\t\t\tdelayLine[delayPos ] = delayFeedback3;\n\t\t\t\t\t\tdelayPos = (delayPos + 1) & 0x3FFF;\n\t\t\t\t\t\t\n\t\t\t\t\t\tvar sample = delaySample0 + delaySample1 + delaySample2 + delaySample3\n\t\t\t\t\t\t\t+ channel#Sample // DRUM\n\t\t\t\t\t\t;\n\t\t\t\t\t\t\n\t\t\t\t\t\tvar abs = sample < 0.0 ? -sample : sample;\n\t\t\t\t\t\tlimit -= limitDecay;\n\t\t\t\t\t\tif (limit < abs) limit = abs;\n\t\t\t\t\t\tsample /= limit * 0.75 + 0.25;\n\t\t\t\t\t\tsample *= volume;\n\t\t\t\t\t\tdata[bufferIndex] = sample;\n\t\t\t\t\t\tbufferIndex = bufferIndex + 1;\n\t\t\t\t\t\tsamples--;\n\t\t\t\t\t}\n\t\t\t\t\t\n\t\t\t\t\tsynth.channelPlayheadA[#] = channel#PlayheadA; // PITCH\n\t\t\t\t\tsynth.channelPlayheadB[#] = channel#PlayheadB; // PITCH\n\t\t\t\t\tsynth.channelPlayheadA[#] = channel#Playhead; // DRUM\n\t\t\t\t\tsynth.channelSample[#] = channel#Sample; // ALL\n\t\t\t\t\t\n\t\t\t\t\tsynth.delayPos = delayPos;\n\t\t\t\t\tsynth.delayFeedback0 = delayFeedback0;\n\t\t\t\t\tsynth.delayFeedback1 = delayFeedback1;\n\t\t\t\t\tsynth.delayFeedback2 = delayFeedback2;\n\t\t\t\t\tsynth.delayFeedback3 = delayFeedback3;\n\t\t\t\t\tsynth.limit = limit;\n\t\t\t\t\t\n\t\t\t\t\tif (effectYMult * effectY - prevEffectY > prevEffectY) {\n\t\t\t\t\t\tsynth.effectPlayhead = Math.asin(effectY);\n\t\t\t\t\t} else {\n\t\t\t\t\t\tsynth.effectPlayhead = Math.PI - Math.asin(effectY);\n\t\t\t\t\t}\n\t\t\t\t\t\n\t\t\t\t\tif (synth.arpeggioSampleCountdown == 0) {\n\t\t\t\t\t\tsynth.arpeggio++;\n\t\t\t\t\t\tsynth.arpeggioSampleCountdown = samplesPerArpeggio;\n\t\t\t\t\t\tif (synth.arpeggio == 4) {\n\t\t\t\t\t\t\tsynth.arpeggio = 0;\n\t\t\t\t\t\t\tsynth.part++;\n\t\t\t\t\t\t\tif (synth.part == song.partsPerBeat) {\n\t\t\t\t\t\t\t\tsynth.part = 0;\n\t\t\t\t\t\t\t\tsynth.beat++;\n\t\t\t\t\t\t\t\tif (synth.beat == song.beatsPerBar) {\n\t\t\t\t\t\t\t\t\tsynth.beat = 0;\n\t\t\t\t\t\t\t\t\tsynth.effectPlayhead = 0.0;\n\t\t\t\t\t\t\t\t\tsynth.bar++;\n\t\t\t\t\t\t\t\t\tif (synth.bar < song.loopStart) {\n\t\t\t\t\t\t\t\t\t\tif (!synth.enableIntro) synth.bar = song.loopStart;\n\t\t\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\t\t\tsynth.enableIntro = false;\n\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t\tif (synth.bar >= song.loopStart + song.loopLength) {\n\t\t\t\t\t\t\t\t\t\tif (synth.loopCount > 0) synth.loopCount--;\n\t\t\t\t\t\t\t\t\t\tif (synth.loopCount > 0 || !synth.enableOutro) {\n\t\t\t\t\t\t\t\t\t\t\tsynth.bar = song.loopStart;\n\t\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t\tif (synth.bar >= song.barCount) {\n\t\t\t\t\t\t\t\t\t\tsynth.bar = 0;\n\t\t\t\t\t\t\t\t\t\tsynth.enableIntro = true;\n\t\t\t\t\t\t\t\t\t\tended = true;\n\t\t\t\t\t\t\t\t\t\tsynth.pause();\n\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t// The bar changed, may need to reinitialize instruments.\n\t\t\t\t\t\t\t\t\tbreak;\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t\t\n\t\t\tsynth.playheadInternal = (((synth.arpeggio + 1.0 - synth.arpeggioSampleCountdown / samplesPerArpeggio) / 4.0 + synth.part) / song.partsPerBeat + synth.beat) / song.beatsPerBar + synth.bar;\n\t\t".split("\n");
+	Synth.synthSourceTemplate = "\n\t\t\t\n\t\t\t var bufferIndex = 0;\n\t\t\t\n\t\t\t var sampleTime = 1.0 / synth.samplesPerSecond;\n\t\t\t var samplesPerArpeggio = synth.getSamplesPerArpeggio();\n\t\t\t var effectYMult = synth.effectYMult;\n\t\t\t var limitDecay = synth.limitDecay;\n\t\t\t var volume = synth.volume;\n\t\t\t var delayLine = synth.delayLine;\n\t\t\t var reverb = Math.pow(song.reverb / beepbox.Config.reverbRange, 0.667) * 0.425; \n\t\t\t var blend = Math.pow(song.blend / beepbox.Config.blendRange, 0.667) * 0.425; \n\t\t\t var riff = Math.pow(song.riff / beepbox.Config.riffRange, 0.667) * 0.425; \n\t\t\t var ended = false;\n\t\t\t\n\t\t\t // Check the bounds of the playhead:\n\t\t\t if (synth.arpeggioSampleCountdown == synth.arpeggioSampleCountdown > samplesPerArpeggio) {\n\t\t\t\t synth.arpeggioSampleCountdown = samplesPerArpeggio;\n\t\t\t }\n\t\t\t if (synth.part >= song.partsPerBeat) {\n\t\t\t\t synth.beat++;\n\t\t\t\t synth.part = 0;\n\t\t\t\t synth.arpeggio = 0;\n\t\t\t\t synth.arpeggioSampleCountdown = samplesPerArpeggio;\n\t\t\t }\n\t\t\t if (synth.beat >= song.beatsPerBar) {\n\t\t\t\t synth.bar++;\n\t\t\t\t synth.beat = 0;\n\t\t\t\t synth.part = 0;\n\t\t\t\t synth.arpeggio = 0;\n\t\t\t\t synth.arpeggioSampleCountdown = samplesPerArpeggio;\n\t\t\t\t\n\t\t\t\t if (synth.loopCount == -1) {\n\t\t\t\t\t if (synth.bar < song.loopStart && !synth.enableIntro) synth.bar = song.loopStart;\n\t\t\t\t\t if (synth.bar >= song.loopStart + song.loopLength && !synth.enableOutro) synth.bar = song.loopStart;\n\t\t\t\t }\n\t\t\t }\n\t\t\t if (synth.bar >= song.barCount) {\n\t\t\t\t if (synth.enableOutro) {\n\t\t\t\t\t synth.bar = 0;\n\t\t\t\t\t synth.enableIntro = true;\n\t\t\t\t\t ended = true;\n\t\t\t\t\t synth.pause();\n\t\t\t\t } else {\n\t\t\t\t\t synth.bar = song.loopStart;\n\t\t\t\t }\n\t\t\t }\n\t\t\t if (synth.bar >= song.loopStart) {\n\t\t\t\t synth.enableIntro = false;\n\t\t\t }\n\t\t\t\n\t\t\t while (totalSamples > 0) {\n\t\t\t\t if (ended) {\n\t\t\t\t\t while (totalSamples-- > 0) {\n\t\t\t\t\t\t data[bufferIndex] = 0.0;\n\t\t\t\t\t\t bufferIndex++;\n\t\t\t\t\t }\n\t\t\t\t\t break;\n\t\t\t\t }\n\t\t\t\t\n\t\t\t\t // Initialize instruments based on current pattern.\n\t\t\t\t var instrumentChannel# = song.getPatternInstrument(#, synth.bar); // ALL\n\t\t\t\t var maxChannel#Volume = 0.27 * (song.instrumentVolumes[#][instrumentChannel#] == 5 ? 0.0 : Math.pow(2, -beepbox.Config.volumeValues[song.instrumentVolumes[#][instrumentChannel#]])) * beepbox.Config.waveVolumes[song.instrumentWaves[#][instrumentChannel#]] * beepbox.Config.filterVolumes[song.instrumentFilters[#][instrumentChannel#]] * beepbox.Config.chorusVolumes[song.instrumentChorus[#][instrumentChannel#]] * 0.5; // PITCH\n\t\t\t\t var maxChannel#Volume = 0.19 * (song.instrumentVolumes[#][instrumentChannel#] == 5 ? 0.0 : Math.pow(2, -beepbox.Config.volumeValues[song.instrumentVolumes[#][instrumentChannel#]])) * beepbox.Config.drumVolumes[song.instrumentWaves[#][instrumentChannel#]]; // DRUM\n\t\t\t\t var channel#Wave = beepbox.Config.waves[song.instrumentWaves[#][instrumentChannel#]]; // PITCH\n\t\t\t\t var channel#Wave = beepbox.Config.getDrumWave(song.instrumentWaves[#][instrumentChannel#]); // DRUM\n\t\t\t\t var channel#WaveLength = channel#Wave.length; // PITCH\n\t\t\t\t var channel#FilterBase = Math.pow(2, -beepbox.Config.filterBases[song.instrumentFilters[#][instrumentChannel#]] + (blend * 4)); // PITCH\n\t\t\t\t var channel#TremoloScale = beepbox.Config.effectTremolos[song.instrumentEffects[#][instrumentChannel#]]; // PITCH\n\t\t\t\t\n\t\t\t\t // Reuse initialized instruments until getting to the end of the sample period or the end of the current bar.\n\t\t\t\t while (totalSamples > 0) {\n\t\t\t\t\t var samples;\n\t\t\t\t\t if (synth.arpeggioSampleCountdown <= totalSamples) {\n\t\t\t\t\t\t samples = synth.arpeggioSampleCountdown;\n\t\t\t\t\t } else {\n\t\t\t\t\t\t samples = totalSamples;\n\t\t\t\t\t }\n\t\t\t\t\t totalSamples -= samples;\n\t\t\t\t\t synth.arpeggioSampleCountdown -= samples;\n\t\t\t\t\t\n\t\t\t\t\t var time = synth.part + synth.beat * song.partsPerBeat;\n\t\t\t\t\n\t\t\t\t\t var channel#ChorusA = Math.pow(2.0, (beepbox.Config.chorusOffsets[song.instrumentChorus[#][instrumentChannel#]] + beepbox.Config.chorusIntervals[song.instrumentChorus[#][instrumentChannel#]] * (riff + 1)) / 12.0); // PITCH\n\t\t\t\t\t var channel#ChorusB = Math.pow(2.0, (beepbox.Config.chorusOffsets[song.instrumentChorus[#][instrumentChannel#]] - beepbox.Config.chorusIntervals[song.instrumentChorus[#][instrumentChannel#]] * (riff + 1)) / 12.0); // PITCH\n\t\t\t\t\t var channel#ChorusSign = (song.instrumentChorus[#][instrumentChannel#] == 7) ? -1.0 : 1.0; // PITCH\n\t\t\t\t\t if (song.instrumentChorus[#][instrumentChannel#] == 0) synth.channelPlayheadB[#] = synth.channelPlayheadA[#]; // PITCH\n\t\t\t\t\t\n\t\t\t\t\t var channel#PlayheadDelta = 0; // ALL\n\t\t\t\t\t var channel#PlayheadDeltaScale = 0; // ALL\n\t\t\t\t\t var channel#Volume = 0; // ALL\n\t\t\t\t\t var channel#VolumeDelta = 0; // ALL\n\t\t\t\t\t var channel#Filter = 0; // ALL\n\t\t\t\t\t var channel#FilterScale = 0; // PITCH\n\t\t\t\t\t var channel#VibratoScale = 0; // PITCH\n\t\t\t\t\t\n\t\t\t\t\t var instrument# = beepbox.Synth.computeChannelInstrument(synth, song, #, time, sampleTime, samplesPerArpeggio, samples, false); // PITCH\n\t\t\t\t\t var instrument# = beepbox.Synth.computeChannelInstrument(synth, song, #, time, sampleTime, samplesPerArpeggio, samples, true); // DRUM\n\t\t\t\t\t\n\t\t\t\t\t channel#PlayheadDelta = instrument#.periodDelta; // PITCH\n\t\t\t\t\t channel#PlayheadDelta = instrument#.periodDelta / 32768.0; // DRUM\n\t\t\t\t\t channel#PlayheadDeltaScale = instrument#.periodDeltaScale; // ALL\n\t\t\t\t\t channel#Volume = instrument#.noteVolume * maxChannel#Volume; // ALL\n\t\t\t\t\t channel#VolumeDelta = instrument#.volumeDelta * maxChannel#Volume; // ALL\n\t\t\t\t\t channel#Filter = instrument#.filter * channel#FilterBase; // PITCH\n\t\t\t\t\t channel#Filter = instrument#.filter; // DRUM\n\t\t\t\t\t channel#FilterScale = instrument#.filterScale; // PITCH\n\t\t\t\t\t channel#VibratoScale = instrument#.vibratoScale; // PITCH\n\t\t\t\t\t channel#ChorusB *= instrument#.harmonyMult; // PITCH\n\t\t\t\t\t if (instrument#.resetPlayheads) { synth.channelSample[#] = 0.0; synth.channelPlayheadA[#] = 0.0; synth.channelPlayheadB[#] = 0.0; } // PITCH\n\t\t\t\t\t\n\t\t\t\t\t var effectY = Math.sin(synth.effectPlayhead);\n\t\t\t\t\t var prevEffectY = Math.sin(synth.effectPlayhead - synth.effectAngle);\n\t\t\t\t\t\n\t\t\t\t\t var channel#PlayheadA = +synth.channelPlayheadA[#]; // PITCH\n\t\t\t\t\t var channel#PlayheadB = +synth.channelPlayheadB[#]; // PITCH\n\t\t\t\t\t var channel#Playhead  = +synth.channelPlayheadA[#]; // DRUM\n\t\t\t\t\t\n\t\t\t\t\t var channel#Sample = +synth.channelSample[#]; // ALL\n\t\t\t\t\t\n\t\t\t\t\t var delayPos = 0|synth.delayPos;\n\t\t\t\t\t var delayFeedback0 = +synth.delayFeedback0;\n\t\t\t\t\t var delayFeedback1 = +synth.delayFeedback1;\n\t\t\t\t\t var delayFeedback2 = +synth.delayFeedback2;\n\t\t\t\t\t var delayFeedback3 = +synth.delayFeedback3;\n\t\t\t\t\t var limit = +synth.limit;\n\t\t\t\t\t\n\t\t\t\t\t while (samples) {\n\t\t\t\t\t\t var channel#Vibrato = 1.0 + channel#VibratoScale * effectY; // PITCH\n\t\t\t\t\t\t var channel#Tremolo = 1.0 + channel#TremoloScale * (effectY - 1.0); // PITCH\n\t\t\t\t\t\t var temp = effectY;\n\t\t\t\t\t\t effectY = effectYMult * effectY - prevEffectY;\n\t\t\t\t\t\t prevEffectY = temp;\n\t\t\t\t\t\t\n\t\t\t\t\t\t channel#Sample += ((channel#Wave[0|(channel#PlayheadA * channel#WaveLength)] + channel#Wave[0|(channel#PlayheadB * channel#WaveLength)] * channel#ChorusSign) * channel#Volume * channel#Tremolo - channel#Sample) * channel#Filter; // PITCH\n\t\t\t\t\t\t channel#Sample += (channel#Wave[0|(channel#Playhead * 32768.0)] * channel#Volume - channel#Sample) * channel#Filter; // DRUM\n\t\t\t\t\t\t channel#Volume += channel#VolumeDelta; // ALL\n\t\t\t\t\t\t channel#PlayheadA += channel#PlayheadDelta * channel#Vibrato * channel#ChorusA; // PITCH\n\t\t\t\t\t\t channel#PlayheadB += channel#PlayheadDelta * channel#Vibrato * channel#ChorusB; // PITCH\n\t\t\t\t\t\t channel#Playhead += channel#PlayheadDelta; // DRUM\n\t\t\t\t\t\t channel#PlayheadDelta *= channel#PlayheadDeltaScale; // ALL\n\t\t\t\t\t\t channel#Filter *= channel#FilterScale; // PITCH\n\t\t\t\t\t\t channel#PlayheadA -= 0|channel#PlayheadA; // PITCH\n\t\t\t\t\t\t channel#PlayheadB -= 0|channel#PlayheadB; // PITCH\n\t\t\t\t\t\t channel#Playhead -= 0|channel#Playhead; // DRUM\n\t\t\t\t\t\t\n\t\t\t\t\t\t // Reverb, implemented using a feedback delay network with a Hadamard matrix and lowpass filters.\n\t\t\t\t\t\t // good ratios:    0.555235 + 0.618033 + 0.818 +   1.0 = 2.991268\n\t\t\t\t\t\t // Delay lengths:  3041     + 3385     + 4481  +  5477 = 16384 = 2^14\n\t\t\t\t\t\t // Buffer offsets: 3041    -> 6426   -> 10907 -> 16384\n\t\t\t\t\t\t var delayPos1 = (delayPos +  3041) & 0x3FFF;\n\t\t\t\t\t\t var delayPos2 = (delayPos +  6426) & 0x3FFF;\n\t\t\t\t\t\t var delayPos3 = (delayPos + 10907) & 0x3FFF;\n\t\t\t\t\t\t var delaySample0 = delayLine[delayPos]\n\t\t\t\t\t\t\t + channel#Sample // PITCH\n\t\t\t\t\t\t ;\n\t\t\t\t\t\t var delaySample1 = delayLine[delayPos1];\n\t\t\t\t\t\t var delaySample2 = delayLine[delayPos2];\n\t\t\t\t\t\t var delaySample3 = delayLine[delayPos3];\n\t\t\t\t\t\t var delayTemp0 = -delaySample0 + delaySample1;\n\t\t\t\t\t\t var delayTemp1 = -delaySample0 - delaySample1;\n\t\t\t\t\t\t var delayTemp2 = -delaySample2 + delaySample3;\n\t\t\t\t\t\t var delayTemp3 = -delaySample2 - delaySample3;\n\t\t\t\t\t\t delayFeedback0 += ((delayTemp0 + delayTemp2) * reverb - delayFeedback0) * 0.5;\n\t\t\t\t\t\t delayFeedback1 += ((delayTemp1 + delayTemp3) * reverb - delayFeedback1) * 0.5;\n\t\t\t\t\t\t delayFeedback2 += ((delayTemp0 - delayTemp2) * reverb - delayFeedback2) * 0.5;\n\t\t\t\t\t\t delayFeedback3 += ((delayTemp1 - delayTemp3) * reverb - delayFeedback3) * 0.5;\n\t\t\t\t\t\t delayLine[delayPos1] = delayFeedback0;\n\t\t\t\t\t\t delayLine[delayPos2] = delayFeedback1;\n\t\t\t\t\t\t delayLine[delayPos3] = delayFeedback2;\n\t\t\t\t\t\t delayLine[delayPos ] = delayFeedback3;\n\t\t\t\t\t\t delayPos = (delayPos + 1) & 0x3FFF;\n\t\t\t\t\t\t\n\t\t\t\t\t\t var sample = delaySample0 + delaySample1 + delaySample2 + delaySample3\n\t\t\t\t\t\t\t + channel#Sample // DRUM\n\t\t\t\t\t\t ;\n\t\t\t\t\t\t\n\t\t\t\t\t\t var abs = sample < 0.0 ? -sample : sample;\n\t\t\t\t\t\t limit -= limitDecay;\n\t\t\t\t\t\t if (limit < abs) limit = abs;\n\t\t\t\t\t\t sample /= limit * 0.75 + 0.25;\n\t\t\t\t\t\t sample *= volume;\n\t\t\t\t\t\t data[bufferIndex] = sample;\n\t\t\t\t\t\t bufferIndex = bufferIndex + 1;\n\t\t\t\t\t\t samples--;\n\t\t\t\t\t }\n\t\t\t\t\t\n\t\t\t\t\t synth.channelPlayheadA[#] = channel#PlayheadA; // PITCH\n\t\t\t\t\t synth.channelPlayheadB[#] = channel#PlayheadB; // PITCH\n\t\t\t\t\t synth.channelPlayheadA[#] = channel#Playhead; // DRUM\n\t\t\t\t\t synth.channelSample[#] = channel#Sample; // ALL\n\t\t\t\t\t\n\t\t\t\t\t synth.delayPos = delayPos;\n\t\t\t\t\t synth.delayFeedback0 = delayFeedback0;\n\t\t\t\t\t synth.delayFeedback1 = delayFeedback1;\n\t\t\t\t\t synth.delayFeedback2 = delayFeedback2;\n\t\t\t\t\t synth.delayFeedback3 = delayFeedback3;\n\t\t\t\t\t synth.limit = limit;\n\t\t\t\t\t\n\t\t\t\t\t if (effectYMult * effectY - prevEffectY > prevEffectY) {\n\t\t\t\t\t\t synth.effectPlayhead = Math.asin(effectY);\n\t\t\t\t\t } else {\n\t\t\t\t\t\t synth.effectPlayhead = Math.PI - Math.asin(effectY);\n\t\t\t\t\t }\n\t\t\t\t\t\n\t\t\t\t\t if (synth.arpeggioSampleCountdown == 0) {\n\t\t\t\t\t\t synth.arpeggio++;\n\t\t\t\t\t\t synth.arpeggioSampleCountdown = samplesPerArpeggio;\n\t\t\t\t\t\t if (synth.arpeggio == 4) {\n\t\t\t\t\t\t\t synth.arpeggio = 0;\n\t\t\t\t\t\t\t synth.part++;\n\t\t\t\t\t\t\t if (synth.part == song.partsPerBeat) {\n\t\t\t\t\t\t\t\t synth.part = 0;\n\t\t\t\t\t\t\t\t synth.beat++;\n\t\t\t\t\t\t\t\t if (synth.beat == song.beatsPerBar) {\n\t\t\t\t\t\t\t\t\t synth.beat = 0;\n\t\t\t\t\t\t\t\t\t synth.effectPlayhead = 0.0;\n\t\t\t\t\t\t\t\t\t synth.bar++;\n\t\t\t\t\t\t\t\t\t if (synth.bar < song.loopStart) {\n\t\t\t\t\t\t\t\t\t\t if (!synth.enableIntro) synth.bar = song.loopStart;\n\t\t\t\t\t\t\t\t\t } else {\n\t\t\t\t\t\t\t\t\t\t synth.enableIntro = false;\n\t\t\t\t\t\t\t\t\t }\n\t\t\t\t\t\t\t\t\t if (synth.bar >= song.loopStart + song.loopLength) {\n\t\t\t\t\t\t\t\t\t\t if (synth.loopCount > 0) synth.loopCount--;\n\t\t\t\t\t\t\t\t\t\t if (synth.loopCount > 0 || !synth.enableOutro) {\n\t\t\t\t\t\t\t\t\t\t\t synth.bar = song.loopStart;\n\t\t\t\t\t\t\t\t\t\t }\n\t\t\t\t\t\t\t\t\t }\n\t\t\t\t\t\t\t\t\t if (synth.bar >= song.barCount) {\n\t\t\t\t\t\t\t\t\t\t synth.bar = 0;\n\t\t\t\t\t\t\t\t\t\t synth.enableIntro = true;\n\t\t\t\t\t\t\t\t\t\t ended = true;\n\t\t\t\t\t\t\t\t\t\t synth.pause();\n\t\t\t\t\t\t\t\t\t }\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t // The bar changed, may need to reinitialize instruments.\n\t\t\t\t\t\t\t\t\t break;\n\t\t\t\t\t\t\t\t }\n\t\t\t\t\t\t\t }\n\t\t\t\t\t\t }\n\t\t\t\t\t }\n\t\t\t\t }\n\t\t\t }\n\t\t\t\n\t\t\t synth.playheadInternal = (((synth.arpeggio + 1.0 - synth.arpeggioSampleCountdown / samplesPerArpeggio) / 4.0 + synth.part) / song.partsPerBeat + synth.beat) / song.beatsPerBar + synth.bar;\n\t\t ".split("\n");
     beepbox.Synth = Synth;
 })(beepbox || (beepbox = {}));
 var beepbox;
@@ -2269,7 +2333,7 @@ var beepbox;
 (function (beepbox) {
     var styleSheet = document.createElement('style');
     styleSheet.type = "text/css";
-    styleSheet.appendChild(document.createTextNode("\n\n.beepboxEditor {\n\t/* For some reason the default focus outline effect causes the entire editor to get repainted when any part of it changes. Border doesn't do that. */\n\tmargin: -3px;\n\tborder: 3px solid transparent;\n\twidth: 700px;\n\tdisplay: flex;\n\tflex-direction: row;\n\t-webkit-touch-callout: none;\n\t-webkit-user-select: none;\n\t-khtml-user-select: none;\n\t-moz-user-select: none;\n\t-ms-user-select: none;\n\tuser-select: none;\n\tposition: relative;\n\ttouch-action: manipulation;\n\tcursor: default;\n\tfont-size: small;\n}\n.beepboxEditor:focus {\n\toutline: none;\n\tborder-color: #555;\n}\n\n.beepboxEditor div {\n\tmargin: 0;\n\tpadding: 0;\n}\n\n.beepboxEditor .promptContainer {\n\tposition: absolute;\n\ttop: 0;\n\tleft: 0;\n\twidth: 100%;\n\theight: 100%;\n\tbackground: rgba(0,0,0,0.5);\n\tdisplay: flex;\n\tjustify-content: center;\n\talign-items: center;\n}\n\n.beepboxEditor .prompt {\n\tmargin: auto;\n\ttext-align: center;\n\tbackground: #000;\n\tborder-radius: 15px;\n\tborder: 4px solid #444;\n\tcolor: #fff;\n\tpadding: 20px;\n\tdisplay: flex;\n\tflex-direction: column;\n}\n\n.beepboxEditor .prompt > *:not(:first-child) {\n\tmargin-top: 1.5em;\n}\n\n/* Use psuedo-elements to add cross-browser up & down arrows to select elements: */\n.beepboxEditor .selectContainer {\n\tposition: relative;\n}\n.beepboxEditor .selectContainer::before {\n\tcontent: \"\";\n\tposition: absolute;\n\tright: 0.5em;\n\ttop: 0.4em;\n\tborder-bottom: 0.4em solid currentColor;\n\tborder-left: 0.3em solid transparent;\n\tborder-right: 0.3em solid transparent;\n\tpointer-events: none;\n}\n.beepboxEditor .selectContainer::after {\n\tcontent: \"\";\n\tposition: absolute;\n\tright: 0.5em;\n\tbottom: 0.4em;\n\tborder-top: 0.4em solid currentColor;\n\tborder-left: 0.3em solid transparent;\n\tborder-right: 0.3em solid transparent;\n\tpointer-events: none;\n}\n.beepboxEditor select {\n\tmargin: 0;\n\tpadding: 0 0.5em;\n\tdisplay: block;\n\theight: 2em;\n\tborder: none;\n\tborder-radius: 0.4em;\n\tbackground: #444444;\n\tcolor: inherit;\n\tfont-size: inherit;\n\tcursor: pointer;\n\n\t-webkit-appearance:none;\n\t-moz-appearance: none;\n\tappearance: none;\n}\n.beepboxEditor select:focus {\n\tbackground: #777777;\n\toutline: none;\n}\n/* This makes it look better in firefox on my computer... What about others?\n@-moz-document url-prefix() {\n\t.beepboxEditor select { padding: 0 2px; }\n}\n*/\n.beepboxEditor button {\n\tmargin: 0;\n\tposition: relative;\n\theight: 2em;\n\tborder: none;\n\tborder-radius: 0.4em;\n\tbackground: #444;\n\tcolor: inherit;\n\tfont-size: inherit;\n\tcursor: pointer;\n}\n.beepboxEditor button:focus {\n\tbackground: #777;\n\toutline: none;\n}\n.beepboxEditor button.playButton::before {\n\tcontent: \"\";\n\tposition: absolute;\n\tleft: 50%;\n\ttop: 50%;\n\tmargin-left: -0.45em;\n\tmargin-top: -0.65em;\n\tborder-left: 1em solid currentColor;\n\tborder-top: 0.65em solid transparent;\n\tborder-bottom: 0.65em solid transparent;\n\tpointer-events: none;\n}\n.beepboxEditor button.pauseButton::before {\n\tcontent: \"\";\n\tposition: absolute;\n\tleft: 50%;\n\ttop: 50%;\n\tmargin-left: -0.5em;\n\tmargin-top: -0.65em;\n\twidth: 0.3em;\n\theight: 1.3em;\n\tbackground: currentColor;\n\tpointer-events: none;\n}\n.beepboxEditor button.pauseButton::after {\n\tcontent: \"\";\n\tposition: absolute;\n\tleft: 50%;\n\ttop: 50%;\n\tmargin-left: 0.2em;\n\tmargin-top: -0.65em;\n\twidth: 0.3em;\n\theight: 1.3em;\n\tbackground: currentColor;\n\tpointer-events: none;\n}\n\n.beepboxEditor canvas {\n\toverflow: hidden;\n\tposition: absolute;\n\tdisplay: block;\n}\n\n.beepboxEditor .selectRow {\n\tmargin: 0;\n\theight: 2.5em;\n\tdisplay: flex;\n\tflex-direction: row;\n\talign-items: center;\n\tjustify-content: space-between;\n}\n\n.beepboxEditor .selectRow > span {\n\tcolor: #999;\n}\n\n.beepboxEditor .editor-right-side {\n\tmargin-left: 6px;\n\twidth: 182px;\n\theight: 645px;\n\tdisplay: flex;\n\tflex-direction: column;\n}\n\n.beepboxEditor .editor-right-side > * {\n\tflex-shrink: 0;\n}\n\n.beepboxEditor input[type=text], .beepboxEditor input[type=number] {\n\tfont-size: inherit;\n\tbackground: transparent;\n\tborder: 1px solid #777;\n\tcolor: white;\n}\n\n.beepboxEditor input[type=checkbox] {\n  transform: scale(1.5);\n}\n\n.beepboxEditor input[type=range] {\n\t-webkit-appearance: none;\n\tcolor: inherit;\n\twidth: 100%;\n\theight: 2em;\n\tfont-size: inherit;\n\tmargin: 0;\n\tcursor: pointer;\n\tbackground-color: black;\n}\n.beepboxEditor input[type=range]:focus {\n\toutline: none;\n}\n.beepboxEditor input[type=range]::-webkit-slider-runnable-track {\n\twidth: 100%;\n\theight: 0.5em;\n\tcursor: pointer;\n\tbackground: #444;\n}\n.beepboxEditor input[type=range]::-webkit-slider-thumb {\n\theight: 2em;\n\twidth: 0.5em;\n\tborder-radius: 0.25em;\n\tbackground: currentColor;\n\tcursor: pointer;\n\t-webkit-appearance: none;\n\tmargin-top: -0.75em;\n}\n.beepboxEditor input[type=range]:focus::-webkit-slider-runnable-track {\n\tbackground: #777;\n}\n.beepboxEditor input[type=range]::-moz-range-track {\n\twidth: 100%;\n\theight: 0.5em;\n\tcursor: pointer;\n\tbackground: #444;\n}\n.beepboxEditor input[type=range]:focus::-moz-range-track {\n\tbackground: #777;\n}\n.beepboxEditor input[type=range]::-moz-range-thumb {\n\theight: 2em;\n\twidth: 0.5em;\n\tborder-radius: 0.25em;\n\tborder: none;\n\tbackground: currentColor;\n\tcursor: pointer;\n}\n.beepboxEditor input[type=range]::-ms-track {\n\twidth: 100%;\n\theight: 0.5em;\n\tcursor: pointer;\n\tbackground: #444;\n\tborder-color: transparent;\n}\n.beepboxEditor input[type=range]:focus::-ms-track {\n\tbackground: #777;\n}\n.beepboxEditor input[type=range]::-ms-thumb {\n\theight: 2em;\n\twidth: 0.5em;\n\tborder-radius: 0.25em;\n\tbackground: currentColor;\n\tcursor: pointer;\n}\n\n"));
+    styleSheet.appendChild(document.createTextNode("\n\n.beepboxEditor {\n\t/* For some reason the default focus outline effect causes the entire editor to get repainted when any part of it changes. Border doesn't do that. */\n\tmargin: -3px;\n\tborder: 3px solid transparent;\n\twidth: 700px;\n\tdisplay: flex;\n\tflex-direction: row;\n\t-webkit-touch-callout: none;\n\t-webkit-user-select: none;\n\t-khtml-user-select: none;\n\t-moz-user-select: none;\n\t-ms-user-select: none;\n\tuser-select: none;\n\tposition: relative;\n\ttouch-action: manipulation;\n\tcursor: default;\n\tfont-size: small;\n}\n.beepboxEditor:focus {\n\toutline: none;\n\tborder-color: #555;\n}\n\n.beepboxEditor div {\n\tmargin: 0;\n\tpadding: 0;\n}\n\n.beepboxEditor .promptContainer {\n\tposition: absolute;\n\ttop: 0;\n\tleft: 0;\n\twidth: 100%;\n\theight: 100%;\n\tbackground: rgba(0,0,0,0.5);\n\tdisplay: flex;\n\tjustify-content: center;\n\talign-items: center;\n}\n\n.beepboxEditor .prompt {\n\tmargin: auto;\n\ttext-align: center;\n\tbackground: #000;\n\tborder-radius: 15px;\n\tborder: 4px solid #444;\n\tcolor: #fff;\n\tpadding: 20px;\n\tdisplay: flex;\n\tflex-direction: column;\n}\n\n.beepboxEditor .prompt > *:not(:first-child) {\n\tmargin-top: 1.5em;\n}\n\n/* Use psuedo-elements to add cross-browser up & down arrows to select elements: */\n.beepboxEditor .selectContainer {\n\tposition: relative;\n}\n.beepboxEditor .selectContainer::before {\n\tcontent: \"\";\n\tposition: absolute;\n\tright: 0.5em;\n\ttop: 0.4em;\n\tborder-bottom: 0.4em solid currentColor;\n\tborder-left: 0.3em solid transparent;\n\tborder-right: 0.3em solid transparent;\n\tpointer-events: none;\n}\n.beepboxEditor .selectContainer::after {\n\tcontent: \"\";\n\tposition: absolute;\n\tright: 0.5em;\n\tbottom: 0.4em;\n\tborder-top: 0.4em solid currentColor;\n\tborder-left: 0.3em solid transparent;\n\tborder-right: 0.3em solid transparent;\n\tpointer-events: none;\n}\n.beepboxEditor select {\n\tmargin: 0;\n\tpadding: 0 0.5em;\n\tdisplay: block;\n\theight: 2em;\n\tborder: none;\n\tborder-radius: 0.4em;\n\tbackground: #444444;\n\tcolor: inherit;\n\tfont-size: inherit;\n\tcursor: pointer;\n\n\t-webkit-appearance:none;\n\t-moz-appearance: none;\n\tappearance: none;\n}\n.beepboxEditor select:focus {\n\tbackground: #777777;\n\toutline: none;\n}\n/* This makes it look better in firefox on my computer... What about others?\n@-moz-document url-prefix() {\n\t.beepboxEditor select { padding: 0 2px; }\n}\n*/\n.beepboxEditor button {\n\tmargin: 0;\n\tposition: relative;\n\theight: 2em;\n\tborder: none;\n\tborder-radius: 0.4em;\n\tbackground: #444;\n\tcolor: inherit;\n\tfont-size: inherit;\n\tcursor: pointer;\n}\n.beepboxEditor button:focus {\n\tbackground: #777;\n\toutline: none;\n}\n.beepboxEditor button.playButton::before {\n\tcontent: \"\";\n\tposition: absolute;\n\tleft: 50%;\n\ttop: 50%;\n\tmargin-left: -0.45em;\n\tmargin-top: -0.65em;\n\tborder-left: 1em solid currentColor;\n\tborder-top: 0.65em solid transparent;\n\tborder-bottom: 0.65em solid transparent;\n\tpointer-events: none;\n}\n.beepboxEditor button.pauseButton::before {\n\tcontent: \"\";\n\tposition: absolute;\n\tleft: 50%;\n\ttop: 50%;\n\tmargin-left: -0.5em;\n\tmargin-top: -0.65em;\n\twidth: 0.3em;\n\theight: 1.3em;\n\tbackground: currentColor;\n\tpointer-events: none;\n}\n.beepboxEditor button.pauseButton::after {\n\tcontent: \"\";\n\tposition: absolute;\n\tleft: 50%;\n\ttop: 50%;\n\tmargin-left: 0.2em;\n\tmargin-top: -0.65em;\n\twidth: 0.3em;\n\theight: 1.3em;\n\tbackground: currentColor;\n\tpointer-events: none;\n}\n\n.beepboxEditor canvas {\n\toverflow: hidden;\n\tposition: absolute;\n\tdisplay: block;\n}\n\n.beepboxEditor .selectRow {\n\tmargin: 0;\n\theight: 2.5em;\n\tdisplay: flex;\n\tflex-direction: row;\n\talign-items: center;\n\tjustify-content: space-between;\n}\n\n.beepboxEditor .selectRow > span {\n\tcolor: #999;\n}\n\n.beepboxEditor .editor-right-side {\n\tmargin-left: 6px;\n\twidth: 182px;\n\theight: 700px;\n\tdisplay: flex;\n\tflex-direction: column;\n}\n\n.beepboxEditor .editor-right-side > * {\n\tflex-shrink: 0;\n}\n\n.beepboxEditor input[type=text], .beepboxEditor input[type=number] {\n\tfont-size: inherit;\n\tbackground: transparent;\n\tborder: 1px solid #777;\n\tcolor: white;\n}\n\n.beepboxEditor input[type=checkbox] {\n  transform: scale(1.5);\n}\n\n.beepboxEditor input[type=range] {\n\t-webkit-appearance: none;\n\tcolor: inherit;\n\twidth: 100%;\n\theight: 2em;\n\tfont-size: inherit;\n\tmargin: 0;\n\tcursor: pointer;\n\tbackground-color: black;\n}\n.beepboxEditor input[type=range]:focus {\n\toutline: none;\n}\n.beepboxEditor input[type=range]::-webkit-slider-runnable-track {\n\twidth: 100%;\n\theight: 0.5em;\n\tcursor: pointer;\n\tbackground: #444;\n}\n.beepboxEditor input[type=range]::-webkit-slider-thumb {\n\theight: 2em;\n\twidth: 0.5em;\n\tborder-radius: 0.25em;\n\tbackground: currentColor;\n\tcursor: pointer;\n\t-webkit-appearance: none;\n\tmargin-top: -0.75em;\n}\n.beepboxEditor input[type=range]:focus::-webkit-slider-runnable-track {\n\tbackground: #777;\n}\n.beepboxEditor input[type=range]::-moz-range-track {\n\twidth: 100%;\n\theight: 0.5em;\n\tcursor: pointer;\n\tbackground: #444;\n}\n.beepboxEditor input[type=range]:focus::-moz-range-track {\n\tbackground: #777;\n}\n.beepboxEditor input[type=range]::-moz-range-thumb {\n\theight: 2em;\n\twidth: 0.5em;\n\tborder-radius: 0.25em;\n\tborder: none;\n\tbackground: currentColor;\n\tcursor: pointer;\n}\n.beepboxEditor input[type=range]::-ms-track {\n\twidth: 100%;\n\theight: 0.5em;\n\tcursor: pointer;\n\tbackground: #444;\n\tborder-color: transparent;\n}\n.beepboxEditor input[type=range]:focus::-ms-track {\n\tbackground: #777;\n}\n.beepboxEditor input[type=range]::-ms-thumb {\n\theight: 2em;\n\twidth: 0.5em;\n\tborder-radius: 0.25em;\n\tbackground: currentColor;\n\tcursor: pointer;\n}\n\n"));
     document.head.appendChild(styleSheet);
 })(beepbox || (beepbox = {}));
 var beepbox;
@@ -4239,6 +4303,37 @@ var beepbox;
         return ChangeReverb;
     }(beepbox.Change));
     beepbox.ChangeReverb = ChangeReverb;
+	
+	var ChangeBlend = (function (_super) {
+        __extends(ChangeBlend, _super);
+        function ChangeBlend(document, oldValue, newValue) {
+            var _this = _super.call(this) || this;
+            _this.oldValue = oldValue;
+            document.song.blend = newValue;
+            document.notifier.changed();
+            if (oldValue != newValue)
+                _this._didSomething();
+            return _this;
+        }
+        return ChangeBlend;
+    }(beepbox.Change));
+    beepbox.ChangeBlend = ChangeBlend;
+	
+	var ChangeRiff = (function (_super) {
+        __extends(ChangeRiff, _super);
+        function ChangeRiff(document, oldValue, newValue) {
+            var _this = _super.call(this) || this;
+            _this.oldValue = oldValue;
+            document.song.riff = newValue;
+            document.notifier.changed();
+            if (oldValue != newValue)
+                _this._didSomething();
+            return _this;
+        }
+        return ChangeRiff;
+    }(beepbox.Change));
+    beepbox.ChangeRiff = ChangeRiff;
+	
     var ChangeNoteAdded = (function (_super) {
         __extends(ChangeNoteAdded, _super);
         function ChangeNoteAdded(document, bar, note, index, deletion) {
@@ -4546,7 +4641,7 @@ var beepbox;
             this._startMode = 0;
             this._endMode = 1;
             this._bothMode = 2;
-            this._loop = beepbox.svgElement("path", { fill: "none", stroke: "#7744ff", "stroke-width": 4 });
+            this._loop = beepbox.svgElement("path", { fill: "none", stroke: "#9900cc", "stroke-width": 4 });
             this._highlight = beepbox.svgElement("path", { fill: "white", "pointer-events": "none" });
             this._svg = beepbox.svgElement("svg", { style: "background-color: #000000; touch-action: pan-y; position: absolute;", width: this._editorWidth, height: this._editorHeight }, [
                 this._loop,
@@ -6241,8 +6336,10 @@ var beepbox;
             this._exportButton = button({ style: "margin: 5px 0;", type: "button" }, [text("Export")]);
             this._scaleDropDown = buildOptions(select({ style: "width:9em;" }), beepbox.Config.scaleNames);
             this._keyDropDown = buildOptions(select({ style: "width:9em;" }), beepbox.Config.keyNames);
-            this._tempoSlider = input({ style: "width: 9em; margin: 0px;", type: "range", min: "0", max: "11", value: "7", step: "1" });
-            this._reverbSlider = input({ style: "width: 9em; margin: 0px;", type: "range", min: "0", max: "3", value: "0", step: "1" });
+            this._tempoSlider = input({ style: "width: 9em; margin: 0px;", type: "range", min: "0", max: "20", value: "7", step: "1" });
+            this._reverbSlider = input({ style: "width: 9em; margin: 0px;", type: "range", min: "0", max: "4", value: "0", step: "1" });
+			this._blendSlider = input({ style: "width: 9em; margin: 0px;", type: "range", min: "0", max: "3", value: "0", step: "1" });
+			this._riffSlider = input({ style: "width: 9em; margin: 0px;", type: "range", min: "0", max: "10", value: "0", step: "1" });
             this._partDropDown = buildOptions(select({ style: "width:9em;" }), beepbox.Config.partNames);
             this._patternSettingsLabel = div({ style: "visibility: hidden; margin: 3px 0; text-align: center;" }, [text("Pattern Settings")]);
             this._instrumentDropDown = select({ style: "width:9em;" });
@@ -6279,7 +6376,7 @@ var beepbox;
             this.mainLayer = div({ className: "beepboxEditor", tabIndex: "0" }, [
                 this._editorBox,
                 div({ className: "editor-right-side" }, [
-                    div({ style: "text-align: center; color: #999;" }, [text("BeepBox 2.2")]),
+                    div({ style: "text-align: center; color: #999;" }, [text("ModBox 2.3.3")]),
                     div({ style: "margin: 5px 0; display: flex; flex-direction: row; align-items: center;" }, [
                         this._playButton,
                         div({ style: "width: 1px; height: 10px;" }),
@@ -6312,6 +6409,14 @@ var beepbox;
                         span({}, [text("Reverb: ")]),
                         this._reverbSlider,
                     ]),
+					div({ className: "selectRow" }, [
+                        span({}, [text("Blending: ")]),
+                        this._blendSlider,
+                    ]),
+					div({ className: "selectRow" }, [
+                        span({}, [text("Riff: ")]),
+                        this._riffSlider,
+                    ]),
                     div({ className: "selectRow" }, [
                         span({}, [text("Rhythm: ")]),
                         div({ className: "selectContainer" }, [this._partDropDown]),
@@ -6328,6 +6433,8 @@ var beepbox;
             this._changeTranspose = null;
             this._changeTempo = null;
             this._changeReverb = null;
+			this._changeBlend = null;
+			this._changeRiff = null;
             this._changeVolume = null;
             this._refocusStage = function (event) {
                 _this.mainLayer.focus();
@@ -6348,6 +6455,8 @@ var beepbox;
                 setSelectedIndex(_this._keyDropDown, _this._doc.song.key);
                 _this._tempoSlider.value = "" + _this._doc.song.tempo;
                 _this._reverbSlider.value = "" + _this._doc.song.reverb;
+				_this._blendSlider.value = "" + _this._doc.song.blend;
+				_this._riffSlider.value = "" + _this._doc.song.riff;
                 setSelectedIndex(_this._partDropDown, beepbox.Config.partCounts.indexOf(_this._doc.song.partsPerBeat));
                 if (_this._doc.song.getChannelIsDrum(_this._doc.channel)) {
                     _this._filterDropDownGroup.style.visibility = "hidden";
@@ -6483,6 +6592,18 @@ var beepbox;
                 _this._changeReverb = new beepbox.ChangeReverb(_this._doc, oldValue, parseInt(_this._reverbSlider.value));
                 _this._doc.history.record(_this._changeReverb, continuousChange);
             };
+			this._whenSetBlend = function () {
+                var continuousChange = _this._doc.history.lastChangeWas(_this._changeBlend);
+                var oldValue = continuousChange ? _this._changeBlend.oldValue : _this._doc.song.blend;
+                _this._changeBlend = new beepbox.ChangeBlend(_this._doc, oldValue, parseInt(_this._blendSlider.value));
+                _this._doc.history.record(_this._changeBlend, continuousChange);
+            };
+			this._whenSetRiff = function () {
+                var continuousChange = _this._doc.history.lastChangeWas(_this._changeRiff);
+                var oldValue = continuousChange ? _this._changeRiff.oldValue : _this._doc.song.riff;
+                _this._changeRiff = new beepbox.ChangeRiff(_this._doc, oldValue, parseInt(_this._riffSlider.value));
+                _this._doc.history.record(_this._changeRiff, continuousChange);
+            };
             this._whenSetPartsPerBeat = function () {
                 _this._doc.history.record(new beepbox.ChangePartsPerBeat(_this._doc, beepbox.Config.partCounts[_this._partDropDown.selectedIndex]));
             };
@@ -6575,6 +6696,8 @@ var beepbox;
             this._keyDropDown.addEventListener("change", this._whenSetKey);
             this._tempoSlider.addEventListener("input", this._whenSetTempo);
             this._reverbSlider.addEventListener("input", this._whenSetReverb);
+			this._blendSlider.addEventListener("input", this._whenSetBlend);
+			this._riffSlider.addEventListener("input", this._whenSetRiff);
             this._partDropDown.addEventListener("change", this._whenSetPartsPerBeat);
             this._instrumentDropDown.addEventListener("change", this._whenSetInstrument);
             this._channelVolumeSlider.addEventListener("input", this._whenSetVolume);
