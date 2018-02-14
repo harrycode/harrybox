@@ -242,7 +242,7 @@ var beepbox;
     Config.pitchNames = ["C", null, "D", null, "E", "F", null, "G", null, "A", null, "B"];
     Config.keyNames = ["B", "A#", "A", "G#", "G", "F#", "F", "E", "D#", "D", "C#", "C"];
     Config.keyTransposes = [23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12];
-    Config.tempoNames = ["speed1", "speed2", "speed3", "speed4", "speed5", "speed6", "speed7", "speed8", "speed9", "speed10", "speed11", "speed12", "speed13", "speed14", "speed15", "speed16", "speed17", "speed18", "speed19", "speed20", "speed21", ];
+    Config.tempoNames = ["speed1", "speed2", "speed3", "speed4", "speed5", "speed6", "speed7", "speed8", "speed9", "speed10", "speed11", "speed12", "speed13", "speed14", "speed15", "speed16", "speed17", "speed18", "speed19", "speed20", "speed21", "speed22", "speed23", "speed24", "speed25", "speed26"];
     Config.reverbRange = 5;
 	Config.blendRange = 4;
 	Config.riffRange = 11;
@@ -272,12 +272,13 @@ var beepbox;
     Config.effectVibratos = [0.0, 0.15, 0.3, 0.45, 0.0, 0.0, 1.0, 0.0, 0.05];
     Config.effectTremolos = [0.0, 0.0, 0.0, 0.0, 0.25, 0.5, 0.0, 1.0, 0.025];
     Config.effectVibratoDelays = [0, 0, 3, 0, 0, 0, 0, 0, 0];
-    Config.chorusNames = ["union", "shimmer", "hum", "honky tonk", "dissonant", "fifths", "octaves", "spinner", "detune", "bowed", "rising", "vibrate", "fourths", "bass", "dirty", "stationary", "custom harmony", "detuned custom harmony"];
-    Config.chorusIntervals = [0.0, 0.02, 0.05, 0.1, 0.25, 3.5, 6, 0.02, 0.0, 0.02, 1.0, 3.5, 4, 0, 0.0, 3.5, 0.0, 0.05];
-    Config.chorusOffsets = [0.0, 0.0, 0.0, 0.0, 0.0, 3.5, 6, 0.0, 0.25, 0.0, 0.7, 7, 4, -7, 0.1, 0.0, 0.0, 0.25];
-    Config.chorusVolumes = [0.9, 0.9, 1.0, 1.0, 0.95, 0.95, 0.9, 1.0, 1.0, 1.0, 0.95, 0.975, 0.95, 1.0, 0.975, 0.9, 1.0, 1.0];
-    Config.chorusHarmonizes = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,true, true];
-    Config.volumeNames = ["loudest", "loud", "medium", "quiet", "quietest", "mute"];
+    Config.chorusNames = ["union", "shimmer", "hum", "honky tonk", "dissonant", "fifths", "octaves", "spinner", "detune", "bowed", "rising", "vibrate", "fourths", "bass", "dirty", "stationary", "union harmony"];
+    Config.chorusIntervals = [0.0, 0.02, 0.05, 0.1, 0.25, 3.5, 6, 0.02, 0.0, 0.02, 1.0, 3.5, 4, 0, 0.0, 3.5, 0.0];
+    Config.chorusOffsets = [0.0, 0.0, 0.0, 0.0, 0.0, 3.5, 6, 0.0, 0.25, 0.0, 0.7, 7, 4, -7, 0.1, 0.0, 0.0];
+    Config.chorusVolumes = [0.9, 0.9, 1.0, 1.0, 0.95, 0.95, 0.9, 1.0, 1.0, 1.0, 0.95, 0.975, 0.95, 1.0, 0.975, 0.9, 1.0];
+    Config.chorusHarmonizes = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true];
+    Config.harmNames = [false, true];
+	Config.volumeNames = ["loudest", "loud", "medium", "quiet", "quietest", "mute"];
     Config.volumeValues = [0.0, 0.5, 1.0, 1.5, 2.0, -1.0];
     Config.pitchChannelColorsDim = ["#0099a1", "#439143", "#a1a100", "#c75000", "#d020d0", "#492184"];
     Config.pitchChannelColorsBright = ["#25f3ff", "#44ff44", "#ffff25", "#ff9752", "#ff90ff", "#9147ff"];
@@ -527,6 +528,7 @@ var beepbox;
             this.instrumentEnvelopes = [[1], [1], [1], [1], [1]];
             this.instrumentEffects = [[0], [0], [0], [0], [0]];
             this.instrumentChorus = [[0], [0], [0], [0], [0]];
+			this.instrumentHarm = [[0], [0], [0], [0], [0]];
             this.scale = 0;
             this.key = Config.keyNames.length - 1;
             this.loopStart = 0;
@@ -586,6 +588,11 @@ var beepbox;
             for (var channel = 0; channel < this.getChannelCount(); channel++)
                 for (var i = 0; i < this.instrumentsPerChannel; i++) {
                     buffer.push(base64IntToCharCode[this.instrumentChorus[channel][i]]);
+                }
+			buffer.push(113);
+            for (var channel = 0; channel < this.getChannelCount(); channel++)
+                for (var i = 0; i < this.instrumentsPerChannel; i++) {
+                    buffer.push(base64IntToCharCode[this.instrumentHarm[channel][i]]);
                 }
             buffer.push(118);
             for (var channel = 0; channel < this.getChannelCount(); channel++)
@@ -777,6 +784,7 @@ var beepbox;
                         this.instrumentEnvelopes[channel_1] = [];
                         this.instrumentEffects[channel_1] = [];
                         this.instrumentChorus[channel_1] = [];
+						this.instrumentHarm[channel_1] = [];
                         this.instrumentVolumes[channel_1] = [];
                     }
                     this.channelPatterns.length = channelCount;
@@ -787,6 +795,7 @@ var beepbox;
                     this.instrumentEnvelopes.length = channelCount;
                     this.instrumentEffects.length = channelCount;
                     this.instrumentChorus.length = channelCount;
+					this.instrumentHarm.length = channelCount;
                     this.instrumentVolumes.length = channelCount;
                 }
                 else if (command == 115) {
@@ -927,6 +936,21 @@ var beepbox;
                         }
                     }
                 }
+				
+				else if (command == 113) {
+                    if (beforeThree) {
+                        channel = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
+                        this.instrumentHarm[channel][0] = [0, 2, 3, 5][this._clip(0, Config.harmNames.length, base64CharCodeToInt[compressed.charCodeAt(charIndex++)])];
+                    }
+                    else {
+                        for (channel = 0; channel < this.getChannelCount(); channel++) {
+                            for (var i = 0; i < this.instrumentsPerChannel; i++) {
+                                this.instrumentHarm[channel][i] = this._clip(0, Config.harmNames.length, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                            }
+                        }
+                    }
+                }
+				
                 else if (command == 118) {
                     if (beforeThree) {
                         channel = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
@@ -1173,6 +1197,7 @@ var beepbox;
                             filter: Config.filterNames[this.instrumentFilters[channel][i]],
                             chorus: Config.chorusNames[this.instrumentChorus[channel][i]],
                             effect: Config.effectNames[this.instrumentEffects[channel][i]],
+							harm: Config.harmNames[this.instrumentHarm[channel][i]],
                         });
                     }
                 }
@@ -1325,6 +1350,7 @@ var beepbox;
                 this.instrumentFilters.length = jsonObject.channels.length;
                 this.instrumentChorus.length = jsonObject.channels.length;
                 this.instrumentEffects.length = jsonObject.channels.length;
+				this.instrumentHarm.length = jsonObject.channels.length;
                 this.channelPatterns.length = jsonObject.channels.length;
                 this.channelOctaves.length = jsonObject.channels.length;
                 this.channelBars.length = jsonObject.channels.length;
@@ -1339,6 +1365,7 @@ var beepbox;
                     this.instrumentFilters[channel] = [];
                     this.instrumentChorus[channel] = [];
                     this.instrumentEffects[channel] = [];
+					this.instrumentHarm[channel] = [];
                     this.channelPatterns[channel] = [];
                     this.channelBars[channel] = [];
                     this.instrumentVolumes[channel].length = this.instrumentsPerChannel;
@@ -1347,6 +1374,7 @@ var beepbox;
                     this.instrumentFilters[channel].length = this.instrumentsPerChannel;
                     this.instrumentChorus[channel].length = this.instrumentsPerChannel;
                     this.instrumentEffects[channel].length = this.instrumentsPerChannel;
+					this.instrumentHarm[channel].length = this.instrumentsPerChannel;
                     this.channelPatterns[channel].length = this.patternsPerChannel;
                     this.channelBars[channel].length = this.barCount;
                     var isDrum = false;
@@ -1383,6 +1411,7 @@ var beepbox;
                             this.instrumentFilters[channel][i] = 0;
                             this.instrumentChorus[channel][i] = 0;
                             this.instrumentEffects[channel][i] = 0;
+							this.instrumentHarm[channel][i] = 0;
                         }
                         else {
                             this.instrumentWaves[channel][i] = Config.waveNames.indexOf(instrumentObject.wave);
@@ -1397,6 +1426,9 @@ var beepbox;
                             this.instrumentEffects[channel][i] = Config.effectNames.indexOf(instrumentObject.effect);
                             if (this.instrumentEffects[channel][i] == -1)
                                 this.instrumentEffects[channel][i] = 0;
+							this.instrumentHarm[channel][i] = Config.harmNames.indexOf(instrumentObject.harm);
+                            if (this.instrumentHarm[channel][i] == -1)
+                                this.instrumentHarm[channel][i] = 0;
                         }
                     }
                     for (var i = 0; i < this.patternsPerChannel; i++) {
@@ -1846,7 +1878,7 @@ var beepbox;
                 resetPlayheads = true;
             }
             else {
-                var chorusHarmonizes = Config.chorusHarmonizes[song.instrumentChorus[channel][pattern.instrument]];
+                var chorusHarmonizes = Config.harmNames[song.instrumentHarm[channel][pattern.instrument]];
                 var pitch = note.pitches[0];
                 if (chorusHarmonizes) {
                     var harmonyOffset = 0.0;
@@ -3699,6 +3731,7 @@ var beepbox;
                 var instrumentFilters = [];
                 var instrumentEnvelopes = [];
                 var instrumentEffects = [];
+				var instrumentHarm = [];
                 var instrumentChorus = [];
                 var instrumentVolumes = [];
                 for (var i = 0; i < newPitchChannelCount; i++) {
@@ -3713,6 +3746,7 @@ var beepbox;
                         instrumentEnvelopes[channel] = document.song.instrumentEnvelopes[oldChannel];
                         instrumentEffects[channel] = document.song.instrumentEffects[oldChannel];
                         instrumentChorus[channel] = document.song.instrumentChorus[oldChannel];
+						instrumentHarm[channel] = document.song.instrumentHarm[oldChannel];
                         instrumentVolumes[channel] = document.song.instrumentVolumes[oldChannel];
                     }
                     else {
@@ -3726,6 +3760,7 @@ var beepbox;
                         instrumentEnvelopes[channel] = beepbox.filledArray(document.song.instrumentsPerChannel, 1);
                         instrumentEffects[channel] = beepbox.filledArray(document.song.instrumentsPerChannel, 0);
                         instrumentChorus[channel] = beepbox.filledArray(document.song.instrumentsPerChannel, 0);
+						instrumentHarm[channel] = beepbox.filledArray(document.song.instrumentsPerChannel, 0);
                         instrumentVolumes[channel] = beepbox.filledArray(document.song.instrumentsPerChannel, 0);
                     }
                 }
@@ -3741,6 +3776,7 @@ var beepbox;
                         instrumentEnvelopes[channel] = document.song.instrumentEnvelopes[oldChannel];
                         instrumentEffects[channel] = document.song.instrumentEffects[oldChannel];
                         instrumentChorus[channel] = document.song.instrumentChorus[oldChannel];
+						instrumentHarm[channel] = document.song.instrumentHarm[oldChannel];
                         instrumentVolumes[channel] = document.song.instrumentVolumes[oldChannel];
                     }
                     else {
@@ -3754,6 +3790,7 @@ var beepbox;
                         instrumentEnvelopes[channel] = beepbox.filledArray(document.song.instrumentsPerChannel, 1);
                         instrumentEffects[channel] = beepbox.filledArray(document.song.instrumentsPerChannel, 0);
                         instrumentChorus[channel] = beepbox.filledArray(document.song.instrumentsPerChannel, 0);
+						instrumentHarm[channel] = beepbox.filledArray(document.song.instrumentsPerChannel, 0);
                         instrumentVolumes[channel] = beepbox.filledArray(document.song.instrumentsPerChannel, 0);
                     }
                 }
@@ -3767,6 +3804,7 @@ var beepbox;
                 document.song.instrumentEnvelopes = instrumentEnvelopes;
                 document.song.instrumentEffects = instrumentEffects;
                 document.song.instrumentChorus = instrumentChorus;
+				document.song.instrumentHarm = instrumentHarm;
                 document.song.instrumentVolumes = instrumentVolumes;
                 document.channel = Math.min(document.channel, newPitchChannelCount + newDrumChannelCount - 1);
                 document.notifier.changed();
@@ -3862,6 +3900,23 @@ var beepbox;
         return ChangeFilter;
     }(beepbox.Change));
     beepbox.ChangeFilter = ChangeFilter;
+	
+	var ChangeHarm = (function (_super) {
+        __extends(ChangeHarm, _super);
+        function ChangeHarm(document, newValue) {
+            var _this = _super.call(this) || this;
+            var oldValue = document.song.instrumentHarm[document.channel][document.getCurrentInstrument()];
+            if (oldValue != newValue) {
+                document.song.instrumentHarm[document.channel][document.getCurrentInstrument()] = newValue;
+                document.notifier.changed();
+                _this._didSomething();
+            }
+            return _this;
+        }
+        return ChangeHarm;
+    }(beepbox.Change));
+    beepbox.ChangeHarm = ChangeHarm;
+	
     var ChangeInstrumentsPerChannel = (function (_super) {
         __extends(ChangeInstrumentsPerChannel, _super);
         function ChangeInstrumentsPerChannel(document, instrumentsPerChannel) {
@@ -3874,15 +3929,17 @@ var beepbox;
                 var oldInstrumentEnvelopes = document.song.instrumentEnvelopes;
                 var oldInstrumentEffects = document.song.instrumentEffects;
                 var oldInstrumentChorus = document.song.instrumentChorus;
+				var oldInstrumentHarm = document.song.instrumentHarm;
                 var oldInstrumentVolumes = document.song.instrumentVolumes;
                 var newInstrumentWaves = [];
                 var newInstrumentFilters = [];
                 var newInstrumentEnvelopes = [];
                 var newInstrumentEffects = [];
                 var newInstrumentChorus = [];
+				var newInstrumentHarm = [];
                 var newInstrumentVolumes = [];
-                var oldArrays = [oldInstrumentWaves, oldInstrumentFilters, oldInstrumentEnvelopes, oldInstrumentEffects, oldInstrumentChorus, oldInstrumentVolumes];
-                var newArrays = [newInstrumentWaves, newInstrumentFilters, newInstrumentEnvelopes, newInstrumentEffects, newInstrumentChorus, newInstrumentVolumes];
+                var oldArrays = [oldInstrumentWaves, oldInstrumentFilters, oldInstrumentEnvelopes, oldInstrumentEffects, oldInstrumentChorus, oldInstrumentHarm, oldInstrumentVolumes];
+                var newArrays = [newInstrumentWaves, newInstrumentFilters, newInstrumentEnvelopes, newInstrumentEffects, newInstrumentChorus, newInstrumentHarm, newInstrumentVolumes];
                 for (var k = 0; k < newArrays.length; k++) {
                     var oldArray = oldArrays[k];
                     var newArray = newArrays[k];
@@ -3924,6 +3981,7 @@ var beepbox;
                 document.song.instrumentEnvelopes = newInstrumentEnvelopes;
                 document.song.instrumentEffects = newInstrumentEffects;
                 document.song.instrumentChorus = newInstrumentChorus;
+				document.song.instrumentHarm = newInstrumentHarm;
                 document.song.instrumentVolumes = newInstrumentVolumes;
                 for (var i = 0; i < document.song.getChannelCount(); i++) {
                     for (var j = 0; j < document.song.patternsPerChannel; j++) {
@@ -6024,6 +6082,7 @@ var beepbox;
                                         description += ", envelope: " + beepbox.Config.envelopeNames[song.instrumentEnvelopes[channel][nextInstrument]];
                                         description += ", filter: " + beepbox.Config.filterNames[song.instrumentFilters[channel][nextInstrument]];
                                         description += ", chorus: " + beepbox.Config.chorusNames[song.instrumentChorus[channel][nextInstrument]];
+										description += ", harm: " + beepbox.Config.harmNames[song.instrumentHarm[channel][nextInstrument]];
                                         description += ", effect: " + beepbox.Config.effectNames[song.instrumentEffects[channel][nextInstrument]];
                                         writeAscii(description);
                                         var sustainInstruments = [
@@ -6084,7 +6143,7 @@ var beepbox;
                                             var tickTime = pinTime + tick;
                                             var linearVolume = lerp(pinVolume, nextPinVolume, tick / length_1);
                                             var linearInterval = lerp(pinInterval, nextPinInterval, tick / length_1);
-                                            var chorusHarmonizes = beepbox.Config.chorusHarmonizes[song.instrumentChorus[channel][nextInstrument]];
+                                            var chorusHarmonizes = beepbox.Config.harmNames[song.instrumentHarm[channel][nextInstrument]];
                                             var arpeggio = Math.floor(tick / ticksPerArpeggio) % 4;
                                             var nextPitch = note.pitches[0];
                                             if (chorusHarmonizes) {
@@ -6336,7 +6395,7 @@ var beepbox;
             this._exportButton = button({ style: "margin: 5px 0;", type: "button" }, [text("Export")]);
             this._scaleDropDown = buildOptions(select({ style: "width:9em;" }), beepbox.Config.scaleNames);
             this._keyDropDown = buildOptions(select({ style: "width:9em;" }), beepbox.Config.keyNames);
-            this._tempoSlider = input({ style: "width: 9em; margin: 0px;", type: "range", min: "0", max: "20", value: "7", step: "1" });
+            this._tempoSlider = input({ style: "width: 9em; margin: 0px;", type: "range", min: "0", max: "25", value: "7", step: "1" });
             this._reverbSlider = input({ style: "width: 9em; margin: 0px;", type: "range", min: "0", max: "4", value: "0", step: "1" });
 			this._blendSlider = input({ style: "width: 9em; margin: 0px;", type: "range", min: "0", max: "3", value: "0", step: "1" });
 			this._riffSlider = input({ style: "width: 9em; margin: 0px;", type: "range", min: "0", max: "10", value: "0", step: "1" });
@@ -6355,7 +6414,9 @@ var beepbox;
             this._chorusDropDownGroup = div({ className: "selectRow" }, [span({}, [text("Chorus: ")]), div({ className: "selectContainer" }, [this._chorusDropDown])]);
             this._effectDropDown = buildOptions(select({ style: "width:9em;" }), beepbox.Config.effectNames);
             this._effectDropDownGroup = div({ className: "selectRow" }, [span({}, [text("Effect: ")]), div({ className: "selectContainer" }, [this._effectDropDown])]);
-            this._instrumentSettingsGroup = div({}, [
+            this._harmDropDown = buildOptions(select({ style: "width:9em;" }), beepbox.Config.harmNames);
+			this._harmDropDownGroup = div({ className: "selectRow" }, [span({}, [text("Harmony: ")]), div({ className: "selectContainer" }, [this._harmDropDown])]);
+			this._instrumentSettingsGroup = div({}, [
                 div({ className: "selectRow" }, [
                     span({}, [text("Volume: ")]),
                     this._channelVolumeSlider,
@@ -6371,12 +6432,13 @@ var beepbox;
                 this._filterDropDownGroup,
                 this._chorusDropDownGroup,
                 this._effectDropDownGroup,
+				this._harmDropDownGroup,
             ]);
             this._promptContainer = div({ className: "promptContainer", style: "display: none;" });
             this.mainLayer = div({ className: "beepboxEditor", tabIndex: "0" }, [
                 this._editorBox,
                 div({ className: "editor-right-side" }, [
-                    div({ style: "text-align: center; color: #999;" }, [text("ModBox 2.3.3")]),
+                    div({ style: "text-align: center; color: #999;" }, [text("ModBox 2.3.4")]),
                     div({ style: "margin: 5px 0; display: flex; flex-direction: row; align-items: center;" }, [
                         this._playButton,
                         div({ style: "width: 1px; height: 10px;" }),
@@ -6462,6 +6524,7 @@ var beepbox;
                     _this._filterDropDownGroup.style.visibility = "hidden";
                     _this._chorusDropDownGroup.style.visibility = "hidden";
                     _this._effectDropDownGroup.style.visibility = "hidden";
+					_this._harmDropDownGroup.style.visibility = "hidden";
                     _this._waveNames.style.display = "none";
                     _this._drumNames.style.display = "block";
                 }
@@ -6469,6 +6532,7 @@ var beepbox;
                     _this._filterDropDownGroup.style.visibility = "visible";
                     _this._chorusDropDownGroup.style.visibility = "visible";
                     _this._effectDropDownGroup.style.visibility = "visible";
+					_this._harmDropDownGroup.style.visibility = "visible";
                     _this._waveNames.style.display = "block";
                     _this._drumNames.style.display = "none";
                 }
@@ -6492,6 +6556,7 @@ var beepbox;
                 setSelectedIndex(_this._envelopeDropDown, _this._doc.song.instrumentEnvelopes[_this._doc.channel][instrument]);
                 setSelectedIndex(_this._effectDropDown, _this._doc.song.instrumentEffects[_this._doc.channel][instrument]);
                 setSelectedIndex(_this._chorusDropDown, _this._doc.song.instrumentChorus[_this._doc.channel][instrument]);
+				setSelectedIndex(_this._harmDropDown, _this._doc.song.instrumentHarm[_this._doc.channel][instrument]);
                 _this._channelVolumeSlider.value = -_this._doc.song.instrumentVolumes[_this._doc.channel][instrument] + "";
                 setSelectedIndex(_this._instrumentDropDown, instrument);
                 _this._piano.container.style.display = _this._doc.showLetters ? "block" : "none";
@@ -6625,6 +6690,9 @@ var beepbox;
             this._whenSetChorus = function () {
                 _this._doc.history.record(new beepbox.ChangeChorus(_this._doc, _this._chorusDropDown.selectedIndex));
             };
+			this._whenSetHarm = function () {
+                _this._doc.history.record(new beepbox.ChangeHarm(_this._doc, _this._harmDropDown.selectedIndex));
+            };
             this._whenSetVolume = function () {
                 var continuousChange = _this._doc.history.lastChangeWas(_this._changeVolume);
                 var oldValue = continuousChange ? _this._changeVolume.oldValue : _this._doc.song.instrumentVolumes[_this._doc.channel][_this._doc.getCurrentInstrument()];
@@ -6706,6 +6774,7 @@ var beepbox;
             this._envelopeDropDown.addEventListener("change", this._whenSetEnvelope);
             this._filterDropDown.addEventListener("change", this._whenSetFilter);
             this._chorusDropDown.addEventListener("change", this._whenSetChorus);
+			this._harmDropDown.addEventListener("change", this._whenSetHarm);
             this._effectDropDown.addEventListener("change", this._whenSetEffect);
             this._playButton.addEventListener("click", this._togglePlay);
             this._exportButton.addEventListener("click", this._openExportPrompt);
