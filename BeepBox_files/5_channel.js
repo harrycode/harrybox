@@ -277,7 +277,6 @@ var beepbox;
     Config.chorusOffsets = [0.0, 0.0, 0.0, 0.0, 0.0, 3.5, 6, 0.0, 0.25, 0.0, 0.7, 7, 4, -7, 0.1, 0.0, 0.0];
     Config.chorusVolumes = [0.9, 0.9, 1.0, 1.0, 0.95, 0.95, 0.9, 1.0, 1.0, 1.0, 0.95, 0.975, 0.95, 1.0, 0.975, 0.9, 1.0];
     Config.chorusHarmonizes = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true];
-    Config.harmNames = [false, true];
 	Config.volumeNames = ["loudest", "loud", "medium", "quiet", "quietest", "mute"];
     Config.volumeValues = [0.0, 0.5, 1.0, 1.5, 2.0, -1.0];
     Config.pitchChannelColorsDim = ["#0099a1", "#439143", "#a1a100", "#c75000", "#d020d0", "#492184"];
@@ -528,7 +527,6 @@ var beepbox;
             this.instrumentEnvelopes = [[1], [1], [1], [1], [1]];
             this.instrumentEffects = [[0], [0], [0], [0], [0]];
             this.instrumentChorus = [[0], [0], [0], [0], [0]];
-			this.instrumentHarm = [[0], [0], [0], [0], [0]];
             this.scale = 0;
             this.key = Config.keyNames.length - 1;
             this.loopStart = 0;
@@ -784,7 +782,6 @@ var beepbox;
                         this.instrumentEnvelopes[channel_1] = [];
                         this.instrumentEffects[channel_1] = [];
                         this.instrumentChorus[channel_1] = [];
-						this.instrumentHarm[channel_1] = [];
                         this.instrumentVolumes[channel_1] = [];
                     }
                     this.channelPatterns.length = channelCount;
@@ -795,7 +792,6 @@ var beepbox;
                     this.instrumentEnvelopes.length = channelCount;
                     this.instrumentEffects.length = channelCount;
                     this.instrumentChorus.length = channelCount;
-					this.instrumentHarm.length = channelCount;
                     this.instrumentVolumes.length = channelCount;
                 }
                 else if (command == 115) {
@@ -935,22 +931,7 @@ var beepbox;
                             }
                         }
                     }
-                }
-				
-				else if (command == 113) {
-                    if (beforeThree) {
-                        channel = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
-                        this.instrumentHarm[channel][0] = [0, 2, 3, 5][this._clip(0, Config.harmNames.length, base64CharCodeToInt[compressed.charCodeAt(charIndex++)])];
-                    }
-                    else {
-                        for (channel = 0; channel < this.getChannelCount(); channel++) {
-                            for (var i = 0; i < this.instrumentsPerChannel; i++) {
-                                this.instrumentHarm[channel][i] = this._clip(0, Config.harmNames.length, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
-                            }
-                        }
-                    }
-                }
-				
+                }	
                 else if (command == 118) {
                     if (beforeThree) {
                         channel = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
@@ -6082,7 +6063,6 @@ var beepbox;
                                         description += ", envelope: " + beepbox.Config.envelopeNames[song.instrumentEnvelopes[channel][nextInstrument]];
                                         description += ", filter: " + beepbox.Config.filterNames[song.instrumentFilters[channel][nextInstrument]];
                                         description += ", chorus: " + beepbox.Config.chorusNames[song.instrumentChorus[channel][nextInstrument]];
-										description += ", harm: " + beepbox.Config.harmNames[song.instrumentHarm[channel][nextInstrument]];
                                         description += ", effect: " + beepbox.Config.effectNames[song.instrumentEffects[channel][nextInstrument]];
                                         writeAscii(description);
                                         var sustainInstruments = [
@@ -6414,8 +6394,6 @@ var beepbox;
             this._chorusDropDownGroup = div({ className: "selectRow" }, [span({}, [text("Chorus: ")]), div({ className: "selectContainer" }, [this._chorusDropDown])]);
             this._effectDropDown = buildOptions(select({ style: "width:9em;" }), beepbox.Config.effectNames);
             this._effectDropDownGroup = div({ className: "selectRow" }, [span({}, [text("Effect: ")]), div({ className: "selectContainer" }, [this._effectDropDown])]);
-            this._harmDropDown = buildOptions(select({ style: "width:9em;" }), beepbox.Config.harmNames);
-			this._harmDropDownGroup = div({ className: "selectRow" }, [span({}, [text("Harmony: ")]), div({ className: "selectContainer" }, [this._harmDropDown])]);
 			this._instrumentSettingsGroup = div({}, [
                 div({ className: "selectRow" }, [
                     span({}, [text("Volume: ")]),
@@ -6524,7 +6502,6 @@ var beepbox;
                     _this._filterDropDownGroup.style.visibility = "hidden";
                     _this._chorusDropDownGroup.style.visibility = "hidden";
                     _this._effectDropDownGroup.style.visibility = "hidden";
-					_this._harmDropDownGroup.style.visibility = "hidden";
                     _this._waveNames.style.display = "none";
                     _this._drumNames.style.display = "block";
                 }
@@ -6532,7 +6509,6 @@ var beepbox;
                     _this._filterDropDownGroup.style.visibility = "visible";
                     _this._chorusDropDownGroup.style.visibility = "visible";
                     _this._effectDropDownGroup.style.visibility = "visible";
-					_this._harmDropDownGroup.style.visibility = "visible";
                     _this._waveNames.style.display = "block";
                     _this._drumNames.style.display = "none";
                 }
@@ -6556,7 +6532,6 @@ var beepbox;
                 setSelectedIndex(_this._envelopeDropDown, _this._doc.song.instrumentEnvelopes[_this._doc.channel][instrument]);
                 setSelectedIndex(_this._effectDropDown, _this._doc.song.instrumentEffects[_this._doc.channel][instrument]);
                 setSelectedIndex(_this._chorusDropDown, _this._doc.song.instrumentChorus[_this._doc.channel][instrument]);
-				setSelectedIndex(_this._harmDropDown, _this._doc.song.instrumentHarm[_this._doc.channel][instrument]);
                 _this._channelVolumeSlider.value = -_this._doc.song.instrumentVolumes[_this._doc.channel][instrument] + "";
                 setSelectedIndex(_this._instrumentDropDown, instrument);
                 _this._piano.container.style.display = _this._doc.showLetters ? "block" : "none";
@@ -6621,6 +6596,10 @@ var beepbox;
                     case 187:
                     case 61:
                         _this._transpose(true);
+                        event.preventDefault();
+                        break;
+                    case 81:
+                        _this._openPrompt("duration");
                         event.preventDefault();
                         break;
                 }
@@ -6689,9 +6668,6 @@ var beepbox;
             };
             this._whenSetChorus = function () {
                 _this._doc.history.record(new beepbox.ChangeChorus(_this._doc, _this._chorusDropDown.selectedIndex));
-            };
-			this._whenSetHarm = function () {
-                _this._doc.history.record(new beepbox.ChangeHarm(_this._doc, _this._harmDropDown.selectedIndex));
             };
             this._whenSetVolume = function () {
                 var continuousChange = _this._doc.history.lastChangeWas(_this._changeVolume);
