@@ -218,11 +218,13 @@ var beepbox;
         };
         return Config;
     }());
-    Config.scaleNames = ["Happy Pentatonic", "Sad Pentatonic", "Major"];
+    Config.scaleNames = ["Happy Pentatonic", "Sad Pentatonic", "Major", "Minor", "All the keys!"];
     Config.scaleFlags = [
         [true, false, true, false, true, false, false, true, false, true, false, false],
         [true, false, false, true, false, true, false, true, false, false, true, false],
-        [true, false, true, false, true, true, false, true, false, true, false, true]
+        [true, false, true, false, true, true, false, true, false, true, false, true],
+        [true, false, true, true, false, true, false, true, true, false, true, false],
+        [true, true, true, true, true, true, true, true, true, true, true, true, true]
     ];
     Config.pianoScaleFlags = [true, false, true, false, true, true, false, true, false, true, false, true];
     Config.blackKeyNameParents = [-1, 1, -1, 1, -1, 1, -1, -1, 1, -1, 1, -1];
@@ -6363,7 +6365,7 @@ var beepbox;
             this.mainLayer = div({ className: "beepboxEditor", tabIndex: "0" }, [
                 this._editorBox,
                 div({ className: "editor-right-side" }, [
-                    div({ style: "text-align: center; color: #999;" }, [text("ModBox 2.3.3")]),
+                    div({ style: "text-align: center; color: #999;" }, [text("Harrybox vWhatever")]),
                     div({ style: "margin: 5px 0; display: flex; flex-direction: row; align-items: center;" }, [
                         this._playButton,
                         div({ style: "width: 1px; height: 10px;" }),
