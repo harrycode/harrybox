@@ -218,24 +218,11 @@ var beepbox;
         };
         return Config;
     }());
-    Config.scaleNames = ["easy :)", "easy :(", "island :)", "island :(", "blues :)", "blues :(", "normal :)", "normal :(", "dbl harmonic :)", "dbl harmonic :(", "enigma", "expert", "base note", "beep bishop", "challenge", "enigma+"];
+    Config.scaleNames = ["Happy Pentatonic", "Sad Pentatonic", "Major"];
     Config.scaleFlags = [
         [true, false, true, false, true, false, false, true, false, true, false, false],
         [true, false, false, true, false, true, false, true, false, false, true, false],
-        [true, false, false, false, true, true, false, true, false, false, false, true],
-        [true, true, false, true, false, false, false, true, true, false, false, false],
-        [true, false, true, true, true, false, false, true, false, true, false, false],
-        [true, false, false, true, false, true, true, true, false, false, true, false],
-        [true, false, true, false, true, true, false, true, false, true, false, true],
-        [true, false, true, true, false, true, false, true, true, false, true, false],
-        [true, true, false, false, true, true, false, true, true, false, false, true],
-        [true, false, true, true, false, false, true, true, true, false, false, true],
-        [true, false, true, false, true, false, true, false, true, false, true, false],
-        [true, true, true, true, true, true, true, true, true, true, true, true],
-		[true, false, false, false, false, false, false, false, false, false, false, false],
-		[true, true, false, true, true, true, true, true, true, false, true, false],
-		[false, true, true, true, true, true, true, true, true, true, true, true],
-		[true, true, false, true, true, false, true, true, false, true, true, false],
+        [true, false, true, false, true, true, false, true, false, true, false, true]
     ];
     Config.pianoScaleFlags = [true, false, true, false, true, true, false, true, false, true, false, true];
     Config.blackKeyNameParents = [-1, 1, -1, 1, -1, 1, -1, -1, 1, -1, 1, -1];
@@ -4303,7 +4290,7 @@ var beepbox;
         return ChangeReverb;
     }(beepbox.Change));
     beepbox.ChangeReverb = ChangeReverb;
-	
+
 	var ChangeBlend = (function (_super) {
         __extends(ChangeBlend, _super);
         function ChangeBlend(document, oldValue, newValue) {
@@ -4318,7 +4305,7 @@ var beepbox;
         return ChangeBlend;
     }(beepbox.Change));
     beepbox.ChangeBlend = ChangeBlend;
-	
+
 	var ChangeRiff = (function (_super) {
         __extends(ChangeRiff, _super);
         function ChangeRiff(document, oldValue, newValue) {
@@ -4333,7 +4320,7 @@ var beepbox;
         return ChangeRiff;
     }(beepbox.Change));
     beepbox.ChangeRiff = ChangeRiff;
-	
+
     var ChangeNoteAdded = (function (_super) {
         __extends(ChangeNoteAdded, _super);
         function ChangeNoteAdded(document, bar, note, index, deletion) {
