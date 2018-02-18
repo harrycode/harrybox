@@ -243,8 +243,8 @@ var beepbox;
     Config.patternsPerChannelMax = 64;
     Config.instrumentsPerChannelMin = 1;
     Config.instrumentsPerChannelMax = 64;
-    Config.partNames = ["÷·3 (triplets)", "÷·4 (standard)", "÷·6", "÷·8", "÷·16 (arpfest)", "÷·12 (smaller arpfest)", "÷·9 (ninths)", "÷·5 (fifths)", "÷·50 (fiftieths)"];
-    Config.partCounts = [3, 4, 6, 8, 16, 12, 9, 5, 50];
+    Config.partNames = ["𝅝", "𝅗𝅥", "♩", "♪", "÷·16 (arpfest)", "÷·12 (smaller arpfest)", "÷·9 (ninths)", "÷·5 (fifths)", "÷·50 (fiftieths)"];
+    Config.partCounts = [1, 2, 4, 8, 16, 12, 9, 5, 50];
     Config.waveNames = ["triangle", "square", "pulse wide", "pulse narrow", "sawtooth", "double saw", "double pulse", "spiky", "plateau", "glitch", "10% pulse", "sunsoft bass", "loud pulse", "sax", "guitar", "sine", "atari bass", "atari pulse", "1% pulse", "curved sawtooth", "viola", "brass", "acoustic bass"];
     Config.waveVolumes = [1.0, 0.5, 0.5, 0.5, 0.65, 0.5, 0.4, 0.4, 0.94, 0.5, 0.5, 1.0, 0.6, 0.2, 0.5, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0];
     Config.drumNames = ["retro", "white", "periodic", "detuned periodic", "shine", "hollow", "deep"];
